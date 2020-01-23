@@ -9,23 +9,14 @@ def homepage(request):
     currentSession = None
     if request.method == "POST":
         if request.POST.get('start_session', False):
-            currentSession = Session()
-            currentSession.dateStart = datetime.datetime.now()
-            # print("Am i in hte right place?")
-            # TODO if we're currently in a session... do not start another one...
-            # the moment we have created a session... we got to save it...
-            # create a bunch of Number fields...
-            # inc them...
-            # should i programmatically... generate the html? i suppose i do need to pass the "count" to that website to actually show the count... otherwise it's kind of useless...
-            # so i'll need to pass all 37 numbers into the field into context. 
+            if not isInASession():
+                currentSession = startSession()
         elif request.POST.get('finish_session', False):
-            # only be able to finish a session if... we are in a session...
-            try:
-                currentSession = Session.objects.latest('dateStart')
-                currentSession.dateEnd = datetime.datetime.now()
-            except Session.DoesNotExist:
-                pass
+            if isInASession():
+                finishSession()
     else:
+        # should i programmatically... generate the html? i suppose i do need to pass the "count" to that website to actually show the count... otherwise it's kind of useless...
+        # so i'll need to pass all 37 numbers into the field into context.
         print("method: " + request.method)
         # hold a variable... whether i'm in a session or not...
         # pass that variable onwards?
@@ -41,3 +32,39 @@ def homepage(request):
     context['currentSession'] = currentSession
 
     return render(request=request, template_name="roulettecounter/home.html", context=context)
+
+def getCurrentSession():
+    try:
+        session = Session.objects.latest('dateStart')
+        if session.dateEnd == None:
+            return session
+    except Session.DoesNotExist:
+        pass
+
+    return None
+
+def isInASession():
+    session = getCurrentSession()
+    if session:
+        return True
+    else:
+        return False
+
+def startSession():
+    print("startSession()")
+    session = Session()
+    session.dateStart = datetime.datetime.now()
+    session.dateEnd = None
+    session.save()
+
+    for i in range(0, 37):
+        number = Number(session=session, number=i, count=0)
+        number.save()
+
+    return session
+
+def finishSession():
+    session = getCurrentSession()
+    if session:
+        session.dateEnd = datetime.datetime.now()
+        session.save()
