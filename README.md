@@ -1,20 +1,15 @@
 # casinotools
 
-start and resume sessions
-counting numbers!
-show a history/list of numbers 
+* Sessions
+* Displays history of previous numbers
 
 ## TODO
 
-analytics... see if there's a "pattern" or whatever...
-* display/visualize numbers etc... in nice charts/graphs (horizontal line column graphs?, sorted in descending order?)
-* add viewing how different sessions went...
-* add different users? different sessions... 
-* add another page... specifically for showing graphs etc... 
-API calls? 
-* maybe even show the R/B... parts... 
-which parts of the board has shown up the most... 
+* Visualization (horizontal line column graphs?, sorted in descending order?)
+* Review previous sessions
+* Support multiple users
+* API
+* UI (R/B/G). odd. even. 1/3.
+* Which parts of the board has shown up the most... 
 
-really just to determine whether the board is biased or not... 
-
-remove/change private key before deploying on prod. 
+* Remove/change private key before deploying on prod. 
