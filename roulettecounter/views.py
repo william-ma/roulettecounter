@@ -5,30 +5,38 @@ import datetime
 # Create your views here.
 def homepage(request):
     context = {}
-    context['sessionMessage'] = ""
     currentSession = getCurrentSession()
 
     if request.method == "POST":
         if request.POST.get('start_session', False):
             if not isInASession():
                 currentSession = startSession()
-                context['sessionMessage'] = "Session started at " + str(currentSession.dateStart)
+                context['infoMessage'] = "Session started at " + str(currentSession.dateStart)
             else:
-                context['sessionMessage'] = "Already in a session started on " + str(currentSession.dateStart)
+                context['infoMessage'] = "Already in a session started on " + str(currentSession.dateStart)
         elif request.POST.get('finish_session', False):
             if isInASession():
                 finishedSession = finishSession()
-                context['sessionMessage'] = "Session ended on " + str(finishedSession.dateEnd)
+                context['infoMessage'] = "Session ended on " + str(finishedSession.dateEnd)
             else:
-                context['sessionMessage'] = "No session to finish"
+                context['infoMessage'] = "No session to finish"
         elif request.POST.get('number', False):
             if isInASession() and request.POST.get('number', False):
                 createNumber(currentSession, request.POST.get('number', False))
             else:
-                context['sessionMessage'] = "Must be in a session to use numbers"
+                context['infoMessage'] = "Must be in a session to use numbers"
+        elif request.POST.get('delete', False):
+            if isInASession():
+                deletedNumber = deleteLastNumber(currentSession)
+                if deletedNumber is not None:
+                    context['infoMessage'] = "Number '" + str(deletedNumber) + "' has been deleted."
+                else:
+                    context['infoMessage'] = "No numbers were deleted."
+            else:
+                context['infoMessage'] = "Must be in a session to delete numbers"
     elif request.method == "GET":
         if isInASession():
-            context['sessionMessage'] = "Currently in a session started on " + str(currentSession.dateStart)
+            context['infoMessage'] = "Currently in a session started on " + str(currentSession.dateStart)
 
     # Populate context
     context['currentSession'] = currentSession
@@ -80,3 +88,12 @@ def finishSession():
 def createNumber(currentSession, number):
     numberObj = Number(number=number, date=datetime.datetime.now(), session=currentSession)
     numberObj.save()
+
+def deleteLastNumber(currentSession):
+    try:
+        numberObj = Number.objects.filter(session=currentSession).latest('date')
+        number = numberObj.number
+        numberObj.delete()
+        return number
+    except Number.DoesNotExist:
+        return None
