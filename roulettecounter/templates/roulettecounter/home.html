@@ -20,12 +20,16 @@
     <br>
     <br>
 
-    {% for number in numbers %}
-    {% if number.count != 0 %}
-      {{ number.number }} | {{ number.count }}
-    <br>
-    {% endif %}
-    {% endfor %}
+    <!-- Show history -->
+    <div class="row">
+      <!-- <blockquote class="blockquote"> -->
+      <h5>
+      {% for number in history %}
+          {{ number.number }}
+      {% endfor %}
+      </h5>
+      <!-- </blockquote> -->
+    </div>
 
     <br>
     <br>
@@ -158,5 +162,11 @@
         </div>
       </div>
     </form>
+
+    <!-- Show popular numbers  -->
+    {% for k, v in numbers.items %}
+      {{ k }} | {{ v }}
+    <br>
+    {% endfor %}
   </div>
 </body>

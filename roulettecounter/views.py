@@ -22,19 +22,24 @@ def homepage(request):
             else:
                 context['sessionMessage'] = "No session to finish"
         elif request.POST.get('number', False):
-            if isInASession():
-                number = request.POST.get('number', False)
-                numberObj = Number.objects.get(number=number, session=currentSession)
-                numberObj.count += 1
-                numberObj.save()
+            if isInASession() and request.POST.get('number', False):
+                createNumber(currentSession, request.POST.get('number', False))
             else:
                 context['sessionMessage'] = "Must be in a session to use numbers"
     elif request.method == "GET":
         if isInASession():
             context['sessionMessage'] = "Currently in a session started on " + str(currentSession.dateStart)
 
+    # Populate context
     context['currentSession'] = currentSession
-    context['numbers'] = Number.objects.filter(session=currentSession)
+
+    # Build our numbers | count
+    numbers = {}
+    for number in Number.objects.filter(session=currentSession):
+        if not numbers.get(number.number, False):
+            numbers[number.number] = number.count()
+    context['numbers'] = numbers
+    context['history'] = Number.objects.filter(session=currentSession).order_by('-date')
 
     return render(request=request, template_name="roulettecounter/home.html", context=context)
 
@@ -61,11 +66,6 @@ def startSession():
     session.dateStart = datetime.datetime.now()
     session.dateEnd = None
     session.save()
-
-    for i in range(0, 37):
-        number = Number(session=session, number=i, count=0)
-        number.save()
-
     return session
 
 def finishSession():
@@ -76,3 +76,7 @@ def finishSession():
         session.save()
 
     return session
+
+def createNumber(currentSession, number):
+    numberObj = Number(number=number, date=datetime.datetime.now(), session=currentSession)
+    numberObj.save()
