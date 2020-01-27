@@ -8,12 +8,16 @@
 
 <body>
   <div class="container-sm">
-    Session<br>
-    <form method="POST" action="">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-primary" name="start_session" value="1">Start</button>
-      <button type="submit" class="btn btn-primary" name="finish_session" value="1">Finish</button>
-    </form>
+    <br>
+    <div class="alert alert-info" role="alert">
+      <small>Session</small>
+      <form method="POST" action="">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" name="start_session" value="1">Start</button>
+        <button type="submit" class="btn btn-primary" name="finish_session" value="1">Finish</button>
+      </form>
+    </div>
+
 
     <!-- Show info -->
     <div class="alert alert-dark" role="alert">
@@ -22,22 +26,16 @@
     {% endif %}
     </div>
 
-    <br>
-    <br>
-
     <!-- Show history -->
-    <div class="row">
-      <!-- <blockquote class="blockquote"> -->
-      <h5>
-      {% for number in history %}
+    <div class="alert alert-primary" role="alert">
+      <!-- <p class="text-monospace"> -->
+        <small>History</small>
+        <h3>
+          {% for number in history %}
           {{ number.number }}
-      {% endfor %}
-      </h5>
-      <!-- </blockquote> -->
+          {% endfor %}
+        </h3>
     </div>
-
-    <br>
-    <br>
 
     <form method="POST" action="">
       {% csrf_token %}

@@ -22,9 +22,10 @@ def homepage(request):
                 context['infoMessage'] = "No session to finish"
         elif request.POST.get('number', False):
             if isInASession() and request.POST.get('number', False):
-                createNumber(currentSession, request.POST.get('number', False))
+                number = createNumber(currentSession, request.POST.get('number', False))
+                context['infoMessage'] = "'" + str(number) + "' was added."
             else:
-                context['infoMessage'] = "Must be in a session to use numbers"
+                context['infoMessage'] = "Must be in a session to use numbers."
         elif request.POST.get('delete', False):
             if isInASession():
                 deletedNumber = deleteLastNumber(currentSession)
@@ -33,7 +34,7 @@ def homepage(request):
                 else:
                     context['infoMessage'] = "No numbers were deleted."
             else:
-                context['infoMessage'] = "Must be in a session to delete numbers"
+                context['infoMessage'] = "Must be in a session to delete numbers."
     elif request.method == "GET":
         if isInASession():
             context['infoMessage'] = "Currently in a session started on " + str(currentSession.dateStart)
@@ -46,6 +47,11 @@ def homepage(request):
     for number in Number.objects.filter(session=currentSession):
         if not numbers.get(number.number, False):
             numbers[number.number] = number.count(currentSession)
+
+        # Show top 5 for now. Currently not working... 
+        #if len(numbers) == 5:
+        #    break
+
     context['numbers'] = numbers
     context['history'] = Number.objects.filter(session=currentSession).order_by('-date')
 
@@ -88,6 +94,7 @@ def finishSession():
 def createNumber(currentSession, number):
     numberObj = Number(number=number, date=datetime.datetime.now(), session=currentSession)
     numberObj.save()
+    return numberObj.number
 
 def deleteLastNumber(currentSession):
     try:
