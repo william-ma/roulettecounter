@@ -2,10 +2,10 @@
 
 start and resume sessions
 counting numbers!
+show a history/list of numbers 
 
 ## TODO
 
-show a history/list of numbers 
 analytics... see if there's a "pattern" or whatever...
 display/visualize numbers etc... in nice charts/graphs (horizontal line column graphs?, sorted in descending order?)
 add tables? 
