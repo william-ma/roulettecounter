@@ -37,7 +37,7 @@ def homepage(request):
     numbers = {}
     for number in Number.objects.filter(session=currentSession):
         if not numbers.get(number.number, False):
-            numbers[number.number] = number.count()
+            numbers[number.number] = number.count(currentSession)
     context['numbers'] = numbers
     context['history'] = Number.objects.filter(session=currentSession).order_by('-date')
 

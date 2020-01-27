@@ -13,5 +13,5 @@ class Number(models.Model):
     date = models.DateTimeField(default=datetime.datetime.now())
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
 
-    def count(self):
-        return Number.objects.filter(number=self.number).count()
+    def count(self, session):
+        return Number.objects.filter(session=session, number=self.number).count()
