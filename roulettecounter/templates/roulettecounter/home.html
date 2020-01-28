@@ -1,7 +1,10 @@
-{% extends "roulettecounter/header.html" %}
+{% extends "roulettecounter/base.html" %}
+
+{% block head %}
+{% endblock %}
 
 {% block content %}
-<div class="container-sm">
+
   <br>
   <div class="alert alert-info" role="alert">
     <small>Session</small>
@@ -10,14 +13,6 @@
       <button type="submit" class="btn btn-primary" name="start_session" value="1">Start</button>
       <button type="submit" class="btn btn-primary" name="finish_session" value="1">Finish</button>
     </form>
-  </div>
-
-
-  <!-- Show info -->
-  <div class="alert alert-dark" role="alert">
-  {% if infoMessage %}
-    {{ infoMessage }}
-  {% endif %}
   </div>
 
   <!-- Show history -->
@@ -47,6 +42,7 @@
         <button type="submit" class="btn btn-light" name="number" value="9">9</button>
         <button type="submit" class="btn btn-light" name="number" value="10">10</button>
         <button type="submit" class="btn btn-light" name="number" value="11">11</button>
+        <button type="submit" class="btn btn-light" name="number" value="12">12</button>
       </div>
       </div>
       <div class="row">
@@ -63,11 +59,11 @@
         <button type="submit" class="btn btn-light" name="number" value="22">22</button>
         <button type="submit" class="btn btn-light" name="number" value="23">23</button>
         <button type="submit" class="btn btn-light" name="number" value="24">24</button>
-        <button type="submit" class="btn btn-light" name="number" value="25">25</button>
       </div>
       </div>
       <div class="row">
       <div class="btn-group btn-group-lg col" role="group" aria-label="Basic example">
+        <button type="submit" class="btn btn-light" name="number" value="25">25</button>
         <button type="submit" class="btn btn-light" name="number" value="26">26</button>
         <button type="submit" class="btn btn-light" name="number" value="27">27</button>
         <button type="submit" class="btn btn-light" name="number" value="28">28</button>
@@ -93,5 +89,4 @@
     {{ k }} | {{ v }}
   <br>
   {% endfor %}
-</div>
 {% endblock %}

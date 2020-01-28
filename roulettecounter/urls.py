@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import homepage
+from .views import homepage, visualizePage
 
 urlpatterns = [
-    path('', homepage, name="homepage")
+    path('', homepage, name="homepage"),
+    path('visualize', visualizePage, name="visualizePage")
 ]

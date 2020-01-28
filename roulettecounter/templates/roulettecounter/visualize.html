@@ -1,0 +1,45 @@
+{% extends "roulettecounter/base.html" %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+{% endblock %}
+
+{% block content %}
+<br>
+<canvas id="myChart"></canvas>
+<script>
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'horizontalBar',
+
+    // The data for our dataset
+    data: {
+      labels: {{ labels|safe }},
+      datasets: [{
+        label: 'Count',
+        backgroundColor: [
+          'rgb(255, 99, 132)',
+          'rgb(100, 99, 132)'
+        ],
+        // borderColor: 'rgb(255, 99, 132)',
+        data: {{ data|safe }}
+      }]
+    },
+
+    // Configuration options go here
+    options: {
+      scales: {
+        xAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 1,
+            suggestedMin: 12,
+            suggestedMax: 15
+          }
+        }]
+      }
+    }
+  });
+</script>
+{% endblock %}

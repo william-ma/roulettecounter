@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Session, Number
 import datetime
+from operator import itemgetter
 
 # Create your views here.
 def homepage(request):
@@ -48,7 +49,7 @@ def homepage(request):
         if not numbers.get(number.number, False):
             numbers[number.number] = number.count(currentSession)
 
-        # Show top 5 for now. Currently not working... 
+        # Show top 5 for now. Currently not working...
         #if len(numbers) == 5:
         #    break
 
@@ -56,6 +57,28 @@ def homepage(request):
     context['history'] = Number.objects.filter(session=currentSession).order_by('-date')
 
     return render(request=request, template_name="roulettecounter/home.html", context=context)
+
+def visualizePage(request):
+    context = {}
+    currentSession = getCurrentSession()
+    if currentSession is not None:
+
+        hotNumbers = []
+        for i in range(0, 37):
+            count = Number.objects.filter(session=currentSession, number=i).count()
+            if count != 0:
+                hotNumbers.append((i, count))
+
+        hotNumbers.sort(key=itemgetter(1), reverse=True)
+
+        context['labels'] = [e[0] for e in hotNumbers]
+        context['data'] = [e[1] for e in hotNumbers]
+        print(context['labels'])
+        print(context['data'])
+    else:
+        context['infoMessage'] = "No numbers to visualize."
+
+    return render(request=request, template_name="roulettecounter/visualize.html", context=context)
 
 def getCurrentSession():
     try:
