@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Session, Number
 import datetime
 from operator import itemgetter
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 
@@ -71,6 +71,7 @@ def register(request):
             messages.success(request, f"New Account Created: {username}")
             login(request, user)
             return redirect("roulettecounter:home")
+            messages.info(request, f"You are now logged in as ''{username}''")
         else:
             messages.error = ",".join(form.error_messages)
 
@@ -99,6 +100,32 @@ def visualize(request):
         context['infoMessage'] = "No numbers to visualize."
 
     return render(request=request, template_name="roulettecounter/visualize.html", context=context)
+
+def logout_request(request):
+    logout(request)
+    messages.info(request, "Logged out successfully!")
+    return redirect("roulettecounter:home")
+
+def login_request(request):
+    context = {}
+    if request.method == "POST":
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"You are now logged in as ''{username}''")
+                return redirect("roulettecounter:home")
+            else:
+                messages.error = "Invalid username or password"
+        else:
+            messages.error = ",".join(form.error_messages)
+
+    form = AuthenticationForm()
+    context["form"] = form
+    return render(request, "roulettecounter/login.html", context=context)
 
 def getCurrentSession():
     try:

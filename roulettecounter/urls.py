@@ -22,5 +22,7 @@ app_name = "roulettecounter"
 urlpatterns = [
     path('', views.home, name="home"),
     path('visualize', views.visualize, name="visualize"),
-    path('register', views.register, name="register")
+    path('register', views.register, name="register"),
+    path('logout', views.logout_request, name="logout"),
+    path('login', views.login_request, name="login"),
 ]
