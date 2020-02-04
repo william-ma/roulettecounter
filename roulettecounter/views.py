@@ -1,10 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Session, Number
 import datetime
 from operator import itemgetter
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login, logout, authenticate
+from django.contrib import messages
 
 # Create your views here.
-def homepage(request):
+def home(request):
     context = {}
     currentSession = getCurrentSession()
 
@@ -58,7 +61,24 @@ def homepage(request):
 
     return render(request=request, template_name="roulettecounter/home.html", context=context)
 
-def visualizePage(request):
+def register(request):
+    context = {}
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f"New Account Created: {username}")
+            login(request, user)
+            return redirect("roulettecounter:home")
+        else:
+            messages.error = ",".join(form.error_messages)
+
+    form = UserCreationForm()
+    context["form"] = form
+    return render(request, "roulettecounter/register.html", context=context)
+
+def visualize(request):
     context = {}
     currentSession = getCurrentSession()
     if currentSession is not None:

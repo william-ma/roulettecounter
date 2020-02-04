@@ -15,9 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import homepage, visualizePage
+from . import views
+
+app_name = "roulettecounter"
 
 urlpatterns = [
-    path('', homepage, name="homepage"),
-    path('visualize', visualizePage, name="visualizePage")
+    path('', views.home, name="home"),
+    path('visualize', views.visualize, name="visualize"),
+    path('register', views.register, name="register")
 ]
