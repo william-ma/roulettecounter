@@ -41,7 +41,7 @@ def home(request):
                 context['infoMessage'] = "Must be in a session to delete numbers."
     elif request.method == "GET":
         if isInASession():
-            context['infoMessage'] = "Currently in a session started on " + str(currentSession.dateStart)
+            messages.info(request, f"Currently in a session started on {currentSession.dateStart}")
 
     # Populate context
     context['currentSession'] = currentSession
@@ -73,7 +73,7 @@ def register(request):
             return redirect("roulettecounter:home")
             messages.info(request, f"You are now logged in as ''{username}''")
         else:
-            messages.error = ",".join(form.error_messages)
+            messages.error(request, ",".join(form.error_messages))
 
     form = UserCreationForm()
     context["form"] = form
