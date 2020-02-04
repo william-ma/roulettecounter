@@ -1,8 +1,9 @@
 # casinotools
 
-* Sessions
+* Front-end done with [bootstrap](https://github.com/twbs/bootstrap)
+* Visualizes data using [Chart.js](https://github.com/chartjs/Chart.js)
+* Supports multiple sessions
 * Displays history of previous numbers
-* Uses [bootstrap](https://github.com/twbs/bootstrap)
 
 ## TODO
 
