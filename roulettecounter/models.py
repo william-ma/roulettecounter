@@ -1,11 +1,12 @@
 from django.db import models
 import datetime
-
-# Create your models here.
+from django.contrib.auth.models import User
 
 class Session(models.Model):
-    dateStart = models.DateTimeField()
-    dateEnd = models.DateTimeField(null=True)
+    date_start = models.DateTimeField()
+    date_end = models.DateTimeField(null=True)
+    # TEMPORARY! Allow user to be null to support guests. This is TEMPORARY!
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
 
 # Represents each time a number appears
 class Number(models.Model):

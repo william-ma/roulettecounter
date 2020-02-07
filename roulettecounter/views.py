@@ -3,45 +3,17 @@ from .models import Session, Number
 import datetime
 from operator import itemgetter
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, get_user
+from django.contrib.auth.models import AnonymousUser
 from django.contrib import messages
 
 # Create your views here.
 def home(request):
     context = {}
-    currentSession = getCurrentSession()
+    currentSession = get_current_session(request)
 
-    if request.method == "POST":
-        if request.POST.get('start_session', False):
-            if not isInASession():
-                currentSession = startSession()
-                return redirect("roulettecounter:home")
-            else:
-                messages.error(request,f"Already in a session started on {currentSession.dateStart}")
-        elif request.POST.get('finish_session', False):
-            if isInASession():
-                finishedSession = finishSession()
-                return redirect("roulettecounter:home")
-            else:
-                messages.error(request,f"No session to finish")
-        elif request.POST.get('number', False):
-            if isInASession() and request.POST.get('number', False):
-                number = createNumber(currentSession, request.POST.get('number', False))
-                context['infoMessage'] = "'" + str(number) + "' was added."
-            else:
-                context['infoMessage'] = "Must be in a session to use numbers."
-        elif request.POST.get('delete', False):
-            if isInASession():
-                deletedNumber = deleteLastNumber(currentSession)
-                if deletedNumber is not None:
-                    context['infoMessage'] = "Number '" + str(deletedNumber) + "' has been deleted."
-                else:
-                    context['infoMessage'] = "No numbers were deleted."
-            else:
-                context['infoMessage'] = "Must be in a session to delete numbers."
-    elif request.method == "GET":
-        if isInASession():
-            messages.info(request, f"Currently in a session started on {currentSession.dateStart}")
+    if is_in_session(request):
+        messages.info(request, f"Currently in a session started on {currentSession.date_start}")
 
     # Populate context
     context['currentSession'] = currentSession
@@ -55,14 +27,40 @@ def home(request):
         # Show top 5 for now. Currently not working...
         #if len(numbers) == 5:
         #    break
-    context = getHotNumbers(context)
+    context = getHotNumbers(request, context)
 
     context['numbers'] = numbers
     context['history'] = Number.objects.filter(session=currentSession).order_by('-date')
 
     return render(request=request, template_name="roulettecounter/home.html", context=context)
 
-def register(request):
+def number_request(request, number):
+    if request.method == "POST":
+        if number < 0 or number > 36:
+            messages.error(request, "Number must be between 0 and 36.")
+
+        if is_in_session(request):
+            number = createNumber(get_current_session(request), number)
+            messages.info(request, f"'{number}' was added.")
+        else:
+            messages.error(request, "Must be in a session to add numbers.")
+
+    return redirect("roulettecounter:home")
+
+def delete_most_recent_request(request):
+    if request.method == "POST":
+        if is_in_session(request):
+            deletedNumber = deleteLastNumber(get_current_session(request))
+            if deletedNumber is not None:
+                messages.info(request, f"Number '{deletedNumber}' has been deleted.")
+            else:
+                messages.info(request, "No numbers were deleted.")
+        else:
+            messages.error(request, "Must be in a session to delete numbers.")
+
+    return redirect("roulettecounter:home")
+
+def signup(request):
     context = {}
     if request.method == "POST":
         form = UserCreationForm(request.POST)
@@ -80,30 +78,30 @@ def register(request):
     context["form"] = form
     return render(request, "roulettecounter/register.html", context=context)
 
-def visualize(request):
-    context = {}
-    currentSession = getCurrentSession()
-    if currentSession is not None:
+# def visualize(request):
+#     context = {}
+#     currentSession = get_current_session(request)
+#     if currentSession is not None:
+#
+#         hotNumbers = []
+#         for i in range(0, 37):
+#             count = Number.objects.filter(session=currentSession, number=i).count()
+#             if count != 0:
+#                 hotNumbers.append((i, count))
+#
+#         hotNumbers.sort(key=itemgetter(1), reverse=True)
+#
+#         context['labels'] = [e[0] for e in hotNumbers]
+#         context['data'] = [e[1] for e in hotNumbers]
+#         print(context['labels'])
+#         print(context['data'])
+#     else:
+#         context['infoMessage'] = "No numbers to visualize."
+#
+#     return render(request=request, template_name="roulettecounter/visualize.html", context=context)
 
-        hotNumbers = []
-        for i in range(0, 37):
-            count = Number.objects.filter(session=currentSession, number=i).count()
-            if count != 0:
-                hotNumbers.append((i, count))
-
-        hotNumbers.sort(key=itemgetter(1), reverse=True)
-
-        context['labels'] = [e[0] for e in hotNumbers]
-        context['data'] = [e[1] for e in hotNumbers]
-        print(context['labels'])
-        print(context['data'])
-    else:
-        context['infoMessage'] = "No numbers to visualize."
-
-    return render(request=request, template_name="roulettecounter/visualize.html", context=context)
-
-def getHotNumbers(context):
-    currentSession = getCurrentSession()
+def getHotNumbers(request, context):
+    currentSession = get_current_session(request)
     if currentSession is not None:
 
         hotNumbers = []
@@ -170,39 +168,47 @@ def deleteMostRecentNumber(request):
     context["form"] = form
     return render(request, "roulettecounter/login.html", context=context)
 
-def getCurrentSession():
+def get_current_session(request):
     try:
-        session = Session.objects.latest('dateStart')
-        if session.dateEnd == None:
+        user = get_user(request)
+        if user.is_anonymous:
+            user = None
+
+        session = Session.objects.filter(user=user).latest('date_start')
+        if session.date_end == None:
             return session
     except Session.DoesNotExist:
         pass
 
     return None
 
-def isInASession():
-    session = getCurrentSession()
+def is_in_session(request):
+    session = get_current_session(request)
     if session:
         return True
     else:
         return False
 
-def startSession():
-    print("startSession()")
-    session = Session()
-    session.dateStart = datetime.datetime.now()
-    session.dateEnd = None
-    session.save()
-    return session
+def start_session_request(request):
+    if not is_in_session(request):
+        user = get_user(request)
+        if user.is_anonymous:
+            user = None
+        Session(
+            date_start = datetime.datetime.now(),
+            date_end = None,
+            user = user
+        ).save()
+    else:
+        messages.error(request, "Already in a session.")
+    return redirect("roulettecounter:home")
 
-def finishSession():
-    print("finishSession()")
-    session = getCurrentSession()
+def end_session_request(request):
+    session = get_current_session(request)
     if session:
-        session.dateEnd = datetime.datetime.now()
+        session.date_end = datetime.datetime.now()
         session.save()
-
-    return session
+    return redirect("roulettecounter:home")
 
 def createNumber(currentSession, number):
     numberObj = Number(number=number, date=datetime.datetime.now(), session=currentSession)

@@ -21,8 +21,13 @@ app_name = "roulettecounter"
 
 urlpatterns = [
     path('', views.home, name="home"),
-    path('visualize', views.visualize, name="visualize"),
-    path('register', views.register, name="register"),
+    # path('visualize', views.visualize, name="visualize"),
+    path('signup', views.signup, name="signup"),
     path('logout', views.logout_request, name="logout"),
     path('login', views.login_request, name="login"),
+    path('start_session', views.start_session_request, name="start_session"),
+    path('end_session', views.end_session_request, name="end_session"),
+    path('number/<int:number>', views.number_request, name="number"),
+    path('delete_most_recent', views.delete_most_recent_request, name="delete_most_recent"),
+
 ]
