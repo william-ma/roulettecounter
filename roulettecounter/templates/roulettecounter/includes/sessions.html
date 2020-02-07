@@ -1,0 +1,11 @@
+<div class="alert alert-info" role="alert">
+  <small>Session</small>
+  <form method="POST" action="">
+    {% csrf_token %}
+    {% if currentSession %}
+      <button type="submit" class="btn btn-primary" name="finish_session" value="1">End Session</button>
+    {% else %}
+      <button type="submit" class="btn btn-primary" name="start_session" value="1">Start Session</button>
+    {% endif %}
+  </form>
+</div>

@@ -1,0 +1,13 @@
+<div class="alert alert-primary" role="alert">
+  <!-- <p class="text-monospace"> -->
+    <small>History</small>
+    <h3>
+      {% if history %}
+        {% for number in history %}
+          {{ number.number }}&nbsp;
+        {% endfor %}
+      {% else %}
+        &nbsp;
+      {% endif %}
+    </h3>
+</div>

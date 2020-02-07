@@ -15,15 +15,15 @@ def home(request):
         if request.POST.get('start_session', False):
             if not isInASession():
                 currentSession = startSession()
-                context['infoMessage'] = "Session started at " + str(currentSession.dateStart)
+                return redirect("roulettecounter:home")
             else:
-                context['infoMessage'] = "Already in a session started on " + str(currentSession.dateStart)
+                messages.error(request,f"Already in a session started on {currentSession.dateStart}")
         elif request.POST.get('finish_session', False):
             if isInASession():
                 finishedSession = finishSession()
-                context['infoMessage'] = "Session ended on " + str(finishedSession.dateEnd)
+                return redirect("roulettecounter:home")
             else:
-                context['infoMessage'] = "No session to finish"
+                messages.error(request,f"No session to finish")
         elif request.POST.get('number', False):
             if isInASession() and request.POST.get('number', False):
                 number = createNumber(currentSession, request.POST.get('number', False))
@@ -55,6 +55,7 @@ def home(request):
         # Show top 5 for now. Currently not working...
         #if len(numbers) == 5:
         #    break
+    context = getHotNumbers(context)
 
     context['numbers'] = numbers
     context['history'] = Number.objects.filter(session=currentSession).order_by('-date')
@@ -101,12 +102,54 @@ def visualize(request):
 
     return render(request=request, template_name="roulettecounter/visualize.html", context=context)
 
+def getHotNumbers(context):
+    currentSession = getCurrentSession()
+    if currentSession is not None:
+
+        hotNumbers = []
+        for i in range(0, 37):
+            count = Number.objects.filter(session=currentSession, number=i).count()
+            if count != 0:
+                hotNumbers.append((i, count))
+
+        hotNumbers.sort(key=itemgetter(1), reverse=True)
+
+        context['labels'] = [e[0] for e in hotNumbers][:10]
+        context['data'] = [e[1] for e in hotNumbers][:10]
+        print(context['labels'])
+        print(context['data'])
+    else:
+        context['infoMessage'] = "No numbers to visualize."
+
+    return context
+
 def logout_request(request):
     logout(request)
     messages.info(request, "Logged out successfully!")
     return redirect("roulettecounter:home")
 
 def login_request(request):
+    context = {}
+    if request.method == "POST":
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"You are now logged in as ''{username}''")
+                return redirect("roulettecounter:home")
+            else:
+                messages.error = "Invalid username or password"
+        else:
+            messages.error = ",".join(form.error_messages)
+
+    form = AuthenticationForm()
+    context["form"] = form
+    return render(request, "roulettecounter/login.html", context=context)
+
+def deleteMostRecentNumber(request):
     context = {}
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)

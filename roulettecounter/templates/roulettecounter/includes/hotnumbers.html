@@ -1,10 +1,3 @@
-{% extends "roulettecounter/base.html" %}
-
-{% block head %}
-<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> -->
-{% endblock %}
-
-{% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <canvas id="myChart"></canvas>
 <script>
@@ -34,12 +27,11 @@
           ticks: {
             beginAtZero: true,
             stepSize: 1,
-            suggestedMin: 12,
-            suggestedMax: 15
+            suggestedMin: 0,
+            suggestedMax: 20
           }
         }]
       }
     }
   });
 </script>
-{% endblock %}
