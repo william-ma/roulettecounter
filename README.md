@@ -11,7 +11,7 @@
 * Settings page
 * Handle multiple guests?
 * Confirm delete? 
-* Review previous session
+* Review previous session (History page?)
 * UI (R/B/G). odd. even. 1/3.
 * Which parts of the board has shown up the most...
 * Remove/change private key before deploying on prod.
