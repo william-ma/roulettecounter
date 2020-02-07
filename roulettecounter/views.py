@@ -1,11 +1,13 @@
-from django.shortcuts import render, redirect
-from .models import Session, Number
 import datetime
 from operator import itemgetter
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login, logout, authenticate, get_user
-from django.contrib.auth.models import AnonymousUser
+
 from django.contrib import messages
+from django.contrib.auth import login, logout, authenticate, get_user
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.shortcuts import render, redirect
+
+from .models import Session, Number
+
 
 # Create your views here.
 def home(request):
@@ -25,7 +27,7 @@ def home(request):
             numbers[number.number] = number.count(currentSession)
 
         # Show top 5 for now. Currently not working...
-        #if len(numbers) == 5:
+        # if len(numbers) == 5:
         #    break
     context = getHotNumbers(request, context)
 
@@ -33,6 +35,7 @@ def home(request):
     context['history'] = Number.objects.filter(session=currentSession).order_by('-date')
 
     return render(request=request, template_name="roulettecounter/home.html", context=context)
+
 
 def number_request(request, number):
     if request.method == "POST":
@@ -47,6 +50,7 @@ def number_request(request, number):
 
     return redirect("roulettecounter:home")
 
+
 def delete_most_recent_request(request):
     if request.method == "POST":
         if is_in_session(request):
@@ -59,6 +63,7 @@ def delete_most_recent_request(request):
             messages.error(request, "Must be in a session to delete numbers.")
 
     return redirect("roulettecounter:home")
+
 
 def signup(request):
     context = {}
@@ -77,6 +82,7 @@ def signup(request):
     form = UserCreationForm()
     context["form"] = form
     return render(request, "roulettecounter/register.html", context=context)
+
 
 # def visualize(request):
 #     context = {}
@@ -121,10 +127,12 @@ def getHotNumbers(request, context):
 
     return context
 
+
 def logout_request(request):
     logout(request)
     messages.info(request, "Logged out successfully!")
     return redirect("roulettecounter:home")
+
 
 def login_request(request):
     context = {}
@@ -147,6 +155,7 @@ def login_request(request):
     context["form"] = form
     return render(request, "roulettecounter/login.html", context=context)
 
+
 def deleteMostRecentNumber(request):
     context = {}
     if request.method == "POST":
@@ -168,6 +177,7 @@ def deleteMostRecentNumber(request):
     context["form"] = form
     return render(request, "roulettecounter/login.html", context=context)
 
+
 def get_current_session(request):
     try:
         user = get_user(request)
@@ -182,6 +192,7 @@ def get_current_session(request):
 
     return None
 
+
 def is_in_session(request):
     session = get_current_session(request)
     if session:
@@ -189,19 +200,21 @@ def is_in_session(request):
     else:
         return False
 
+
 def start_session_request(request):
     if not is_in_session(request):
         user = get_user(request)
         if user.is_anonymous:
             user = None
         Session(
-            date_start = datetime.datetime.now(),
-            date_end = None,
-            user = user
+            date_start=datetime.datetime.now(),
+            date_end=None,
+            user=user
         ).save()
     else:
         messages.error(request, "Already in a session.")
     return redirect("roulettecounter:home")
+
 
 def end_session_request(request):
     session = get_current_session(request)
@@ -210,10 +223,12 @@ def end_session_request(request):
         session.save()
     return redirect("roulettecounter:home")
 
+
 def createNumber(currentSession, number):
     numberObj = Number(number=number, date=datetime.datetime.now(), session=currentSession)
     numberObj.save()
     return numberObj.number
+
 
 def deleteLastNumber(currentSession):
     try:
