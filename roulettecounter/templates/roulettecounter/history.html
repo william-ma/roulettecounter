@@ -1,0 +1,16 @@
+{% extends "roulettecounter/base.html" %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+{% for session in sessions %}
+  {% if session.1 %}
+    <br>
+    <br>
+    <div class="d-flex justify-content-center">{{session.0.date_start}} - {{session.0.date_end}}</div>
+    <br>
+    {% include "roulettecounter/includes/hotnumbers.html" with chartName=session.0.date_end data=session.2 labels=session.1 %}
+  {% endif %}
+{% endfor %}
+
+{% endblock %}

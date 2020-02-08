@@ -12,29 +12,40 @@ from .models import Session, Number
 # Create your views here.
 def home(request):
     context = {}
-    currentSession = get_current_session(request)
+    current_session = get_current_session(request)
 
-    if is_in_session(request):
-        messages.info(request, f"Currently in a session started on {currentSession.date_start}")
+    if not is_in_session(request):
+        return render(request=request, template_name="roulettecounter/home.html", context=context)
+
+    messages.info(request,
+                  f"In session started on {current_session.date_start.strftime('%a %I:%M%p (%d/%m)')}")
 
     # Populate context
-    context['currentSession'] = currentSession
+    context['currentSession'] = current_session
 
-    # Build our numbers | count
-    numbers = {}
-    for number in Number.objects.filter(session=currentSession):
-        if not numbers.get(number.number, False):
-            numbers[number.number] = number.count(currentSession)
+    # Required for visualization
+    context['labels'], context['data'] = get_hot_numbers(request, current_session, limit=10)
 
-        # Show top 5 for now. Currently not working...
-        # if len(numbers) == 5:
-        #    break
-    context = getHotNumbers(request, context)
-
-    context['numbers'] = numbers
-    context['history'] = Number.objects.filter(session=currentSession).order_by('-date')
+    context['history'] = Number.objects.filter(session=current_session).order_by('-date')
 
     return render(request=request, template_name="roulettecounter/home.html", context=context)
+
+
+def history_request(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Must be logged in to show history.")
+        return redirect("roulettecounter:home")
+
+    context = {}
+    context["sessions"] = []
+    sessions = Session.objects.filter(user=get_user(request)).order_by('-date_end')
+    for session in sessions:
+        labels, data = get_hot_numbers(request, session)
+        context["sessions"].append([session, labels, data])
+        print(labels)
+        print(data)
+
+    return render(request=request, template_name="roulettecounter/history.html", context=context)
 
 
 def number_request(request, number):
@@ -54,9 +65,9 @@ def number_request(request, number):
 def delete_most_recent_request(request):
     if request.method == "POST":
         if is_in_session(request):
-            deletedNumber = deleteLastNumber(get_current_session(request))
-            if deletedNumber is not None:
-                messages.info(request, f"Number '{deletedNumber}' has been deleted.")
+            deleted_number = deleteLastNumber(get_current_session(request))
+            if deleted_number is not None:
+                messages.info(request, f"Number '{deleted_number}' has been deleted.")
             else:
                 messages.info(request, "No numbers were deleted.")
         else:
@@ -74,8 +85,8 @@ def signup(request):
             username = form.cleaned_data.get('username')
             messages.success(request, f"New Account Created: {username}")
             login(request, user)
-            return redirect("roulettecounter:home")
             messages.info(request, f"You are now logged in as ''{username}''")
+            return redirect("roulettecounter:home")
         else:
             messages.error(request, ",".join(form.error_messages))
 
@@ -106,26 +117,20 @@ def signup(request):
 #
 #     return render(request=request, template_name="roulettecounter/visualize.html", context=context)
 
-def getHotNumbers(request, context):
-    currentSession = get_current_session(request)
-    if currentSession is not None:
+def get_hot_numbers(request, session, limit=37):
 
-        hotNumbers = []
-        for i in range(0, 37):
-            count = Number.objects.filter(session=currentSession, number=i).count()
-            if count != 0:
-                hotNumbers.append((i, count))
+    hotNumbers = []
+    for i in range(0, 37):
+        count = Number.objects.filter(session=session, number=i).count()
+        if count != 0:
+            hotNumbers.append((i, count))
 
-        hotNumbers.sort(key=itemgetter(1), reverse=True)
+    hotNumbers.sort(key=itemgetter(1), reverse=True)
 
-        context['labels'] = [e[0] for e in hotNumbers][:10]
-        context['data'] = [e[1] for e in hotNumbers][:10]
-        print(context['labels'])
-        print(context['data'])
-    else:
-        context['infoMessage'] = "No numbers to visualize."
+    labels = [e[0] for e in hotNumbers][:limit]
+    data = [e[1] for e in hotNumbers][:limit]
 
-    return context
+    return labels, data
 
 
 def logout_request(request):

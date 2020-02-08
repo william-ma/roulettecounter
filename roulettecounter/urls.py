@@ -29,5 +29,5 @@ urlpatterns = [
     path('end_session', views.end_session_request, name="end_session"),
     path('number/<int:number>', views.number_request, name="number"),
     path('delete_most_recent', views.delete_most_recent_request, name="delete_most_recent"),
-
+    path('history', views.history_request, name="history"),
 ]

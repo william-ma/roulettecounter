@@ -6,7 +6,7 @@
 {% block content %}
 
   {% if currentSession %}
-    {% include "roulettecounter/includes/hotnumbers.html" %}
+    {% include "roulettecounter/includes/hotnumbers.html" with chartName="myChart" %}
     <br>
     {% include "roulettecounter/includes/input.html" %}
     <br>
