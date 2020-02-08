@@ -1,4 +1,4 @@
-# casinotools
+# probability
 
 * Front-end done with [bootstrap](https://github.com/twbs/bootstrap)
 * Visualizes data using [Chart.js](https://github.com/chartjs/Chart.js)
