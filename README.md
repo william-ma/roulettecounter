@@ -1,14 +1,16 @@
-# probability
+# Roulette Counter
 
-* Front-end done with [bootstrap](https://github.com/twbs/bootstrap)
-* Visualizes data using [Chart.js](https://github.com/chartjs/Chart.js)
-* Supports multiple sessions
-* Supports multiple users
-* Displays history of previous numbers
+## Features
+
+- [x] Front-end done with [bootstrap](https://github.com/twbs/bootstrap)
+- [x] Visualizes data using [Chart.js](https://github.com/chartjs/Chart.js)
+- [x] Supports multiple sessions
+- [x] Supports multiple users
+- [x] Displays history of previous numbers
 
 ## TODO
 
-* Settings page
-* Handle multiple guests?
-* Review previous session (History page?)
-* Which parts of the board has shown up the most...
+- [ ] Settings page
+- [ ] Handle multiple guests
+- [ ] Review previous sessions
+- [ ] Highlight most active parts of the board 
