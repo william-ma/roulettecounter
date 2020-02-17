@@ -54,7 +54,7 @@ def number_request(request, number):
             messages.error(request, "Number must be between 0 and 36.")
 
         if is_in_session(request):
-            number = createNumber(get_current_session(request), number)
+            number = create_number(get_current_session(request), number)
             messages.info(request, f"'{number}' was added.")
         else:
             messages.error(request, "Must be in a session to add numbers.")
@@ -65,7 +65,7 @@ def number_request(request, number):
 def delete_most_recent_request(request):
     if request.method == "POST":
         if is_in_session(request):
-            deleted_number = deleteLastNumber(get_current_session(request))
+            deleted_number = delete_last_number(get_current_session(request))
             if deleted_number is not None:
                 messages.info(request, f"Number '{deleted_number}' has been deleted.")
             else:
@@ -161,7 +161,7 @@ def login_request(request):
     return render(request, "roulettecounter/login.html", context=context)
 
 
-def deleteMostRecentNumber(request):
+def delete_most_recent_number(request):
     context = {}
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
@@ -229,15 +229,15 @@ def end_session_request(request):
     return redirect("roulettecounter:home")
 
 
-def createNumber(currentSession, number):
+def create_number(currentSession, number):
     numberObj = Number(number=number, date=datetime.datetime.now(), session=currentSession)
     numberObj.save()
     return numberObj.number
 
 
-def deleteLastNumber(currentSession):
+def delete_last_number(current_session):
     try:
-        numberObj = Number.objects.filter(session=currentSession).latest('date')
+        numberObj = Number.objects.filter(session=current_session).latest('date')
         number = numberObj.number
         numberObj.delete()
         return number
