@@ -1,1 +1,1 @@
-web: gunicorn myproject.wsgi
+web: gunicorn probability.wsgi --log-file -

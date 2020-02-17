@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'roulettecounter.apps.RoulettecounterConfig'
+    'roulettecounter.apps.RoulettecounterConfig',
+    'gunicorn'
 ]
 
 MIDDLEWARE = [
