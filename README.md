@@ -8,8 +8,11 @@
 - [x] Supports multiple users
 - [x] Review previous sessions
 - [x] Displays history of previous numbers
+- [x] Detailed analytics 
 
 ## TODO
 
 - [ ] Handle multiple guests
-- [ ] Highlight most active parts of the board 
+
+- [ ] Make more responsive (javascript)
+- [ ] Refactor into clicks and numbers, where numbers holds the analytical information + count

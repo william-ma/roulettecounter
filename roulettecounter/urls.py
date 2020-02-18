@@ -29,5 +29,6 @@ urlpatterns = [
     path('number/<int:number>', views.number_request, name="number"),
     path('delete_most_recent', views.delete_most_recent_request, name="delete_most_recent"),
     path('history', views.history_request, name="history"),
+    path('analytics', views.analytics_request, name="analytics"),
     #path('contact/', include('contact_form.urls')),
 ]
