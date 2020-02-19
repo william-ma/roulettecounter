@@ -4,6 +4,8 @@ from operator import itemgetter
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate, get_user
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.core import serializers
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from . import helper
@@ -13,9 +15,9 @@ from .models import Session, Number
 # Create your views here.
 def mobile_request(request):
     context = {}
-    current_session = get_current_session(request)
+    current_session = Session.get_current_session(request)
 
-    if not is_in_session(request):
+    if not Session.is_in_session(request):
         return render(request=request, template_name="roulettecounter/mobile.html", context=context)
 
     messages.info(request,
@@ -31,25 +33,12 @@ def mobile_request(request):
 
     return render(request=request, template_name="roulettecounter/mobile.html", context=context)
 
-def home(request):
+
+def home_request(request):
     context = {}
-    current_session = get_current_session(request)
-
-    if not is_in_session(request):
-        return render(request=request, template_name="roulettecounter/mobile.html", context=context)
-
-    messages.info(request,
-                  f"In session started on {current_session.date_start.strftime('%a %I:%M%p (%d/%m)')}")
-
-    # Populate context
-    context['currentSession'] = current_session
-
-    # Required for visualization
-    context['labels'], context['data'] = get_hot_numbers(request, current_session, limit=10)
-
+    current_session = Session.get_current_session(request)
     context['history'] = Number.objects.filter(session=current_session).order_by('-date')
-
-    return render(request=request, template_name="roulettecounter/mobile.html", context=context)
+    return render(request, "roulettecounter/home.html")
 
 
 def history_request(request):
@@ -74,8 +63,8 @@ def number_request(request, number):
         if number < 0 or number > 36:
             messages.error(request, "Number must be between 0 and 36.")
 
-        if is_in_session(request):
-            number = create_number(get_current_session(request), number)
+        if Session.is_in_session(request):
+            number = create_number(Session.get_current_session(request), number)
             messages.info(request, f"'{number}' was added.")
         else:
             messages.error(request, "Must be in a session to add numbers.")
@@ -85,8 +74,8 @@ def number_request(request, number):
 
 def delete_most_recent_request(request):
     if request.method == "POST":
-        if is_in_session(request):
-            deleted_number = delete_last_number(get_current_session(request))
+        if Session.is_in_session(request):
+            deleted_number = delete_last_number(Session.get_current_session(request))
             if deleted_number is not None:
                 messages.info(request, f"Number '{deleted_number}' has been deleted.")
             else:
@@ -203,50 +192,30 @@ def delete_most_recent_number(request):
     return render(request, "roulettecounter/login.html", context=context)
 
 
-def get_current_session(request):
-    try:
-        user = get_user(request)
-        if user.is_anonymous:
-            user = None
-
-        session = Session.objects.filter(user=user).latest('date_start')
-        if session.date_end == None:
-            return session
-    except Session.DoesNotExist:
-        pass
-
-    return None
-
-
-def is_in_session(request):
-    session = get_current_session(request)
-    if session:
-        return True
-    else:
-        return False
-
-
 def start_session_request(request):
-    if not is_in_session(request):
-        user = get_user(request)
-        if user.is_anonymous:
-            user = None
-        Session(
-            date_start=datetime.datetime.now(),
-            date_end=None,
-            user=user
-        ).save()
-    else:
-        messages.error(request, "Already in a session.")
-    return redirect("roulettecounter:home")
+    if Session.is_in_session(request):
+        return JsonResponse({"error_message": "Session cannot be started, you are already in a session."})
+
+    user = get_user(request)
+    if user.is_anonymous:
+        user = None
+
+    session = Session(date_start=datetime.datetime.now(), date_end=None, user=user)
+    session.save()
+
+    return JsonResponse(serializers.serialize("json", [session]), safe=False)
 
 
 def end_session_request(request):
-    session = get_current_session(request)
+    if not Session.is_in_session(request):
+        return JsonResponse({"error_message": "Session cannot be ended, you are currently not in a session."})
+
+    session = Session.get_current_session(request)
     if session:
         session.date_end = datetime.datetime.now()
         session.save()
-    return redirect("roulettecounter:home")
+
+    return JsonResponse(serializers.serialize("json", [session]), safe=False)
 
 
 def create_number(currentSession, number):
@@ -266,7 +235,7 @@ def delete_last_number(current_session):
 
 
 def analytics_request(request):
-    current_session = get_current_session(request)
+    current_session = Session.get_current_session(request)
     if current_session is None:
         messages.error(request, "Must be in session to use analytics.")
         return redirect("roulettecounter:home")

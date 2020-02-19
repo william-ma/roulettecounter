@@ -1,0 +1,77 @@
+{% extends "roulettecounter/base.html" %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-1 text-center">
+        <div class="row">
+            <div class="col">
+                <h5>&nbsp;</h5>
+                <p class="text-dark">
+                    <small>&nbsp</small>
+                </p>
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-center">
+            {% include "roulettecounter/includes/analytics_cell.html" with k=0 v=numbers.0 %}
+        </div>
+    </div>
+    <div class="col-10 text-center">
+        <!-- First Row-->
+        <div class="row justify-content-center">
+            {% for k, v in numbers.items %}
+            {% if k != 0 and k|add:"2"|divisibleby:"3" %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k=k v=v %}
+            {% endif %}
+            {% endfor %}
+        </div>
+        <br>
+        <!-- Second Row-->
+        <div class="row justify-content-center">
+            {% for k, v in numbers.items %}
+            {% if k != 0 and k|add:"1"|divisibleby:"3" %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k=k v=v %}
+            {% endif %}
+            {% endfor %}
+        </div>
+        <br>
+        <!-- Third Row-->
+        <div class="row justify-content-center">
+            {% for k, v in numbers.items %}
+            {% if k != 0 and k|divisibleby:"3" %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k=k v=v %}
+            {% endif %}
+            {% endfor %}
+        </div>
+        <br>
+        <div class="row justify-content-center">
+            {% include "roulettecounter/includes/analytics_cell.html" with k="1st 12" v=other_percentages.1_12 is_not_number=True %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k="2nd 12" v=other_percentages.13_24 is_not_number=True %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k="3rd 12" v=other_percentages.25_36 is_not_number=True %}
+        </div>
+        <br>
+        <div class="row justify-content-center">
+            {% include "roulettecounter/includes/analytics_cell.html" with k="1 to 18" v=other_percentages.1_18 is_not_number=True %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k="Even" v=other_percentages.even is_not_number=True %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k="Red" v=other_percentages.red is_not_number=True %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k="Black" v=other_percentages.black is_not_number=True %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k="Odd" v=other_percentages.odd is_not_number=True %}
+            {% include "roulettecounter/includes/analytics_cell.html" with k="19 to 36" v=other_percentages.19_36 is_not_number=True %}
+        </div>
+    </div>
+    <div class="col-1 text-center">
+        <div class="row">
+            {% include "roulettecounter/includes/analytics_cell.html" with k="2 to 1" v=other_percentages.row_one is_not_number=True %}
+        </div>
+        <br>
+        <div class="row justify-content-center">
+            {% include "roulettecounter/includes/analytics_cell.html" with k="2 to 1" v=other_percentages.row_two is_not_number=True %}
+        </div>
+        <br>
+        <div class="row justify-content-center">
+            {% include "roulettecounter/includes/analytics_cell.html" with k="2 to 1" v=other_percentages.row_three is_not_number=True %}
+        </div>
+    </div>
+</div>
+{% endblock %}

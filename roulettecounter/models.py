@@ -1,7 +1,9 @@
-from django.db import models
 import datetime
-from django.contrib.auth.models import User
 from enum import Enum
+
+from django.contrib.auth import get_user
+from django.contrib.auth.models import User
+from django.db import models
 
 
 class Session(models.Model):
@@ -9,6 +11,32 @@ class Session(models.Model):
     date_end = models.DateTimeField(null=True)
     # TEMPORARY! Allow user to be null to support guests. This is TEMPORARY!
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+
+    def is_running(self):
+        return self.date_end is None
+
+    '''
+    Returns the current session, otherwise returns None if we're currently not in a session
+    '''
+    @staticmethod
+    def get_current_session(request):
+        try:
+            user = get_user(request)
+            if user.is_anonymous:
+                user = None
+
+            # Get the last session that hasn't ended
+            session = Session.objects.filter(user=user).latest('date_start')
+            if session.is_running():
+                return session
+        except Session.DoesNotExist:
+            pass
+
+        return None
+
+    @staticmethod
+    def is_in_session(request):
+        return Session.get_current_session(request) is not None
 
 
 # Represents each time a number appears

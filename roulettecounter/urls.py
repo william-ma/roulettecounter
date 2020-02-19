@@ -19,7 +19,7 @@ from . import views
 app_name = "roulettecounter"
 
 urlpatterns = [
-    path('', views.home, name="home"),
+    path('', views.home_request, name="home"),
     # path('visualize', views.visualize, name="visualize"),
     path('signup', views.signup, name="signup"),
     path('logout', views.logout_request, name="logout"),
