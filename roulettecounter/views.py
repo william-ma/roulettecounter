@@ -11,12 +11,12 @@ from .models import Session, Number
 
 
 # Create your views here.
-def home(request):
+def mobile_request(request):
     context = {}
     current_session = get_current_session(request)
 
     if not is_in_session(request):
-        return render(request=request, template_name="roulettecounter/home.html", context=context)
+        return render(request=request, template_name="roulettecounter/mobile.html", context=context)
 
     messages.info(request,
                   f"In session started on {current_session.date_start.strftime('%a %I:%M%p (%d/%m)')}")
@@ -29,7 +29,27 @@ def home(request):
 
     context['history'] = Number.objects.filter(session=current_session).order_by('-date')
 
-    return render(request=request, template_name="roulettecounter/home.html", context=context)
+    return render(request=request, template_name="roulettecounter/mobile.html", context=context)
+
+def home(request):
+    context = {}
+    current_session = get_current_session(request)
+
+    if not is_in_session(request):
+        return render(request=request, template_name="roulettecounter/mobile.html", context=context)
+
+    messages.info(request,
+                  f"In session started on {current_session.date_start.strftime('%a %I:%M%p (%d/%m)')}")
+
+    # Populate context
+    context['currentSession'] = current_session
+
+    # Required for visualization
+    context['labels'], context['data'] = get_hot_numbers(request, current_session, limit=10)
+
+    context['history'] = Number.objects.filter(session=current_session).order_by('-date')
+
+    return render(request=request, template_name="roulettecounter/mobile.html", context=context)
 
 
 def history_request(request):

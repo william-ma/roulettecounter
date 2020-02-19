@@ -30,5 +30,6 @@ urlpatterns = [
     path('delete_most_recent', views.delete_most_recent_request, name="delete_most_recent"),
     path('history', views.history_request, name="history"),
     path('analytics', views.analytics_request, name="analytics"),
+    path('mobile', views.mobile_request, name="mobile"),
     #path('contact/', include('contact_form.urls')),
 ]
