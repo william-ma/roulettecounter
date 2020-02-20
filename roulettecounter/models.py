@@ -221,10 +221,11 @@ class NumberStat(models.Model):
 class NumberShown(models.Model):
     date = models.DateTimeField(default=datetime.datetime.now())
     number_stat = models.ForeignKey(NumberStat, on_delete=models.CASCADE)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE)
 
     @classmethod
-    def create(cls, number_stat):
-        number_shown = cls(number_stat=number_stat)
+    def create(cls, number_stat, session):
+        number_shown = cls(number_stat=number_stat, session=session)
         number_shown.save()
 
         number_stat.inc()

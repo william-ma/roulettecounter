@@ -1,0 +1,10 @@
+<div class="col text-center">
+    {% comment %} Used to test whether we want to show a value or not {% endcomment %}
+    {% if percentage >= 0 %}
+        {% if percentage < 0.1 %}
+            <p class="text-muted"><small>({{ percentage }}%)</small></p>
+        {% else %}
+            <p class="text-dark"><small>({{ percentage }}%)</small></p>
+        {% endif %}
+    {% endif %}
+</div>
