@@ -77,7 +77,6 @@
             {% include "roulettecounter/includes/percentage.html" with percentage=board_stat.percentage_second_col %}
             {% include "roulettecounter/includes/percentage.html" with percentage=board_stat.percentage_third_col %}
         </div>
-        <br>
         <div class="row justify-content-center">
             {% include "roulettecounter/includes/cell.html" with v="1 to 18" %}
             {% include "roulettecounter/includes/cell.html" with v="Even" %}
@@ -100,6 +99,12 @@
 <div class="row justify-content-center">
     <div class="col text-center">
         <p class="text-secondary"><small>Out of a sample size of {{ board_stat.total_count }}.</small></p>
+    </div>
+</div>
+<br>
+<div class="row justify-content-center">
+    <div class="col text-center">
+        <button type="submit" class="btn btn-light" formaction="/start_session">New session</button>
     </div>
 </div>
 {% endblock %}
