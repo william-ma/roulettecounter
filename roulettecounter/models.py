@@ -1,9 +1,69 @@
 import datetime
-from enum import Enum
 
 from django.contrib.auth import get_user
 from django.contrib.auth.models import User
 from django.db import models
+
+
+class BoardStat(models.Model):
+    num_green = models.PositiveSmallIntegerField(default=0)
+    num_red = models.PositiveSmallIntegerField(default=0)
+    num_black = models.PositiveSmallIntegerField(default=0)
+    num_even = models.PositiveSmallIntegerField(default=0)
+    num_odd = models.PositiveSmallIntegerField(default=0)
+    num_first_col = models.PositiveSmallIntegerField(default=0)
+    num_second_col = models.PositiveSmallIntegerField(default=0)
+    num_third_col = models.PositiveSmallIntegerField(default=0)
+    num_first_half = models.PositiveSmallIntegerField(default=0)
+    num_second_half = models.PositiveSmallIntegerField(default=0)
+    num_first_row = models.PositiveSmallIntegerField(default=0)
+    num_second_row = models.PositiveSmallIntegerField(default=0)
+    num_third_row = models.PositiveSmallIntegerField(default=0)
+
+    @classmethod
+    def create(cls):
+        return cls()
+
+    def inc_or_dec(self, number_stat, amount):
+        if number_stat.is_red:
+            self.num_red += amount
+        elif number_stat.is_black:
+            self.num_black += amount
+        elif number_stat.is_green:
+            self.num_green += amount
+
+        if number_stat.is_even:
+            self.num_even += amount
+        elif number_stat.is_odd:
+            self.num_odd += amount
+
+        if number_stat.is_in_first_col:
+            self.num_first_col += amount
+        elif number_stat.is_in_second_col:
+            self.num_second_col += amount
+        elif number_stat.is_in_third_col:
+            self.num_third_col += amount
+
+        if number_stat.is_in_first_half:
+            self.num_first_half += amount
+        elif number_stat.is_in_second_half:
+            self.num_second_half += amount
+
+        if number_stat.is_in_first_row:
+            self.num_first_row += amount
+        elif number_stat.is_in_second_row:
+            self.num_second_row += amount
+        elif number_stat.is_in_third_row:
+            self.num_third_row += amount
+
+        self.save()
+
+    def inc(self, number_stat):
+        self.inc_or_dec(number_stat, 1)
+
+    def dec(self, number_stat):
+        self.inc_or_dec(number_stat, -1)
+
 
 """
 Each session has all the numbers attached to it. 
@@ -12,14 +72,19 @@ Each session has all the numbers attached to it.
 
 class Session(models.Model):
     date_start = models.DateTimeField(default=datetime.datetime.now())
-    date_end = models.DateTimeField(null=True)
+    date_end = models.DateTimeField(null=True, default=None)
     # TEMPORARY! Allow user to be null to support guests. This is TEMPORARY!
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    board_stat = models.ForeignKey(BoardStat, null=True, on_delete=models.CASCADE)
 
     @classmethod
     def create(cls, user):
-        session = cls(user=user)
-        session.date_end = None
+
+        # We need to save our models beforehand... so we can set them as foreign keys for other models
+        board_stat = BoardStat.create()
+        board_stat.save()
+
+        session = cls(user=user, board_stat=board_stat)
         session.save()
 
         for i in range(0, 37):
@@ -70,7 +135,7 @@ class NumberStat(models.Model):
     is_in_first_row = models.BooleanField()
     is_in_second_row = models.BooleanField()
     is_in_third_row = models.BooleanField()
-    appearances = models.PositiveSmallIntegerField()
+    appearances = models.PositiveSmallIntegerField(default=0)
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
 
     green_numbers = [0, 00]
@@ -99,17 +164,18 @@ class NumberStat(models.Model):
         number_stat.is_in_second_row = (number % 3 == 2)
         number_stat.is_in_third_row = (number != 0 and number % 3 == 0)
 
-        number_stat.appearances = 0
-
         return number_stat
 
     def inc(self):
         self.appearances += 1
+        self.session.board_stat.inc(self)
+        # Session.objects.get(pk=self.session.primary_key).board_stat.inc()
         self.save()
 
     def dec(self):
         if self.appearances != 0:
             self.appearances -= 1
+            self.session.board_stat.dec(self)
         self.save()
 
 
@@ -125,4 +191,3 @@ class NumberShown(models.Model):
         number_stat.inc()
 
         return number_shown
-

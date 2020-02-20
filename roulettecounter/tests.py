@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 # Create your tests here.
-from roulettecounter.models import NumberStat, Session, NumberShown
+from roulettecounter.models import NumberStat, Session, NumberShown, BoardStat
 
 
 class NumberStatTestCase(TestCase):
@@ -51,3 +51,24 @@ class NumberStatTestCase(TestCase):
 
         NumberShown.create(number_one)
         self.assertEqual(number_one.appearances, 1)
+
+        self.assertTrue(number_zero.is_green)
+
+        board_stat = BoardStat.objects.get(id=session.board_stat.pk)
+        self.assertEqual(board_stat.num_green, 5)
+        self.assertEqual(board_stat.num_red, 1)
+        self.assertEqual(board_stat.num_black, 0)
+
+        self.assertEqual(board_stat.num_first_half, 1)
+        self.assertEqual(board_stat.num_first_col, 1)
+        self.assertEqual(board_stat.num_first_row, 1)
+        self.assertEqual(board_stat.num_second_row, 0)
+        self.assertEqual(board_stat.num_third_row, 0)
+
+        NumberShown.create(numbers[3])
+        board_stat = BoardStat.objects.get(id=session.board_stat.pk)
+        self.assertEqual(board_stat.num_third_row, 1)
+        NumberShown.create(numbers[3])
+        board_stat = BoardStat.objects.get(id=session.board_stat.pk)
+        self.assertEqual(board_stat.num_third_row, 2)
+
