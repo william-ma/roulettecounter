@@ -5,12 +5,27 @@ from django.contrib.auth import get_user
 from django.contrib.auth.models import User
 from django.db import models
 
+"""
+Each session has all the numbers attached to it. 
+"""
+
 
 class Session(models.Model):
-    date_start = models.DateTimeField()
+    date_start = models.DateTimeField(default=datetime.datetime.now())
     date_end = models.DateTimeField(null=True)
     # TEMPORARY! Allow user to be null to support guests. This is TEMPORARY!
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+
+    @classmethod
+    def create(cls, user):
+        session = cls(user=user)
+        session.date_end = None
+        session.save()
+
+        for i in range(0, 37):
+            NumberStat.create(i, session).save()
+
+        return session
 
     def is_running(self):
         return self.date_end is None
@@ -18,6 +33,7 @@ class Session(models.Model):
     '''
     Returns the current session, otherwise returns None if we're currently not in a session
     '''
+
     @staticmethod
     def get_current_session(request):
         try:
@@ -39,108 +55,74 @@ class Session(models.Model):
         return Session.get_current_session(request) is not None
 
 
-# Represents each time a number appears
-class Number(models.Model):
-    class Color(Enum):
-        GREEN = "GREEN"
-        RED = "RED"
-        BLACK = "BLACK"
-
-    color_mappings = {
-        0: Color.GREEN,
-        1: Color.RED,
-        2: Color.BLACK,
-        3: Color.RED,
-        4: Color.BLACK,
-        5: Color.RED,
-        6: Color.BLACK,
-        7: Color.RED,
-        8: Color.BLACK,
-        9: Color.RED,
-        10: Color.BLACK,
-        11: Color.BLACK,
-        12: Color.RED,
-        13: Color.BLACK,
-        14: Color.RED,
-        15: Color.BLACK,
-        16: Color.RED,
-        17: Color.BLACK,
-        18: Color.RED,
-        19: Color.RED,
-        20: Color.BLACK,
-        21: Color.RED,
-        22: Color.BLACK,
-        23: Color.RED,
-        24: Color.BLACK,
-        25: Color.RED,
-        26: Color.BLACK,
-        27: Color.RED,
-        28: Color.BLACK,
-        29: Color.BLACK,
-        30: Color.RED,
-        31: Color.BLACK,
-        32: Color.RED,
-        33: Color.BLACK,
-        34: Color.RED,
-        35: Color.BLACK,
-        36: Color.RED,
-    }
-
+class NumberStat(models.Model):
     number = models.PositiveSmallIntegerField()
-    date = models.DateTimeField(default=datetime.datetime.now())
+    is_green = models.BooleanField()
+    is_red = models.BooleanField()
+    is_black = models.BooleanField()
+    is_even = models.BooleanField()
+    is_odd = models.BooleanField()
+    is_in_first_col = models.BooleanField()
+    is_in_second_col = models.BooleanField()
+    is_in_third_col = models.BooleanField()
+    is_in_first_half = models.BooleanField()
+    is_in_second_half = models.BooleanField()
+    is_in_first_row = models.BooleanField()
+    is_in_second_row = models.BooleanField()
+    is_in_third_row = models.BooleanField()
+    appearances = models.PositiveSmallIntegerField()
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
 
-    def count(self, session):
-        return Number.objects.filter(session=session, number=self.number).count()
+    green_numbers = [0, 00]
+    red_numbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
+    black_numbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]
 
-    @staticmethod
-    def is_red(number):
-        return Number.color_mappings[number] == Number.Color.RED
+    @classmethod
+    def create(cls, number, session):
+        number_stat = cls(number=number, session=session)
 
-    @staticmethod
-    def is_black(number):
-        return Number.color_mappings[number] == Number.Color.BLACK
+        number_stat.is_green = number in NumberStat.green_numbers
+        number_stat.is_red = number in NumberStat.red_numbers
+        number_stat.is_black = number in NumberStat.black_numbers
 
-    @staticmethod
-    def is_green(number):
-        return Number.color_mappings[number] == Number.Color.GREEN
+        number_stat.is_even = (number != 0 and number % 2 == 0)
+        number_stat.is_odd = (number != 0 and not number_stat.is_even)
 
-    @staticmethod
-    def is_odd(number):
-        return not Number.is_even(number)
+        number_stat.is_in_first_col = 1 <= number <= 12
+        number_stat.is_in_second_col = 13 <= number <= 24
+        number_stat.is_in_third_col = 25 <= number <= 36
 
-    @staticmethod
-    def is_even(number):
-        return number != 0 and number % 2 == 0
+        number_stat.is_in_first_half = 1 <= number <= 18
+        number_stat.is_in_second_half = not number_stat.is_in_first_half
 
-    @staticmethod
-    def is_in_1_12(number):
-        return 1 <= number <= 12
+        number_stat.is_in_first_row = (number % 3 == 1)
+        number_stat.is_in_second_row = (number % 3 == 2)
+        number_stat.is_in_third_row = (number != 0 and number % 3 == 0)
 
-    @staticmethod
-    def is_in_13_24(number):
-        return 13 <= number <= 24
+        number_stat.appearances = 0
 
-    @staticmethod
-    def is_in_25_36(number):
-        return 25 <= number <= 36
+        return number_stat
 
-    @staticmethod
-    def is_in_1_18(number):
-        return 1 <= number <= 18
+    def inc(self):
+        self.appearances += 1
+        self.save()
 
-    @staticmethod
-    def is_in_19_36(number):
-        return 19 <= number <= 36
+    def dec(self):
+        if self.appearances != 0:
+            self.appearances -= 1
+        self.save()
 
-    @staticmethod
-    def is_in_row_one(number):
-        return number % 3 == 1
 
-    @staticmethod
-    def is_in_row_two(number):
-        return number % 3 == 2
+class NumberShown(models.Model):
+    date = models.DateTimeField(default=datetime.datetime.now())
+    number_stat = models.ForeignKey(NumberStat, on_delete=models.CASCADE)
 
-    @staticmethod
-    def is_in_row_three(number):
-        return number != 0 and number % 3 == 0
+    @classmethod
+    def create(cls, number_stat):
+        number_shown = cls(number_stat=number_stat)
+        number_shown.save()
+
+        number_stat.inc()
+
+        return number_shown
+

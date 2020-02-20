@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from . import helper
-from .models import Session, Number
+from .models import Session, NumberShown
 
 
 # Create your views here.
@@ -29,7 +29,7 @@ def mobile_request(request):
     # Required for visualization
     context['labels'], context['data'] = get_hot_numbers(request, current_session, limit=10)
 
-    context['history'] = Number.objects.filter(session=current_session).order_by('-date')
+    context['history'] = NumberShown.objects.filter(session=current_session).order_by('-date')
 
     return render(request=request, template_name="roulettecounter/mobile.html", context=context)
 
@@ -37,7 +37,7 @@ def mobile_request(request):
 def home_request(request):
     context = {}
     current_session = Session.get_current_session(request)
-    context['history'] = Number.objects.filter(session=current_session).order_by('-date')
+    context['history'] = NumberShown.objects.filter(session=current_session).order_by('-date')
     return render(request, "roulettecounter/home.html")
 
 
@@ -130,7 +130,7 @@ def signup(request):
 def get_hot_numbers(request, session, limit=37):
     hotNumbers = []
     for i in range(0, 37):
-        count = Number.objects.filter(session=session, number=i).count()
+        count = NumberShown.objects.filter(session=session, number=i).count()
         if count != 0:
             hotNumbers.append((i, count))
 
@@ -200,7 +200,7 @@ def start_session_request(request):
     if user.is_anonymous:
         user = None
 
-    session = Session(date_start=datetime.datetime.now(), date_end=None, user=user)
+    session = Session.create(user)
     session.save()
 
     return JsonResponse(serializers.serialize("json", [session]), safe=False)
@@ -219,18 +219,18 @@ def end_session_request(request):
 
 
 def create_number(currentSession, number):
-    numberObj = Number(number=number, date=datetime.datetime.now(), session=currentSession)
+    numberObj = NumberShown(number=number, date=datetime.datetime.now(), session=currentSession)
     numberObj.save()
     return numberObj.number
 
 
 def delete_last_number(current_session):
     try:
-        numberObj = Number.objects.filter(session=current_session).latest('date')
+        numberObj = NumberShown.objects.filter(session=current_session).latest('date')
         number = numberObj.number
         numberObj.delete()
         return number
-    except Number.DoesNotExist:
+    except NumberShown.DoesNotExist:
         return None
 
 
@@ -263,37 +263,37 @@ def analytics_request(request):
     }
     for i in range(0, 37):
         # numbers_numbers[i] = Number.objects.filter(session=get_current_session(request), number=i)
-        count = Number.objects.filter(session=current_session, number=i).count()
+        count = NumberShown.objects.filter(session=current_session, number=i).count()
 
         numbers_count[i] = count
 
-        if Number.is_red(i):
+        if NumberShown.is_red(i):
             other_count["red"] += count
-        elif Number.is_black(i):
+        elif NumberShown.is_black(i):
             other_count["black"] += count
 
-        if Number.is_even(i):
+        if NumberShown.is_even(i):
             other_count["even"] += count
-        elif Number.is_odd(i):
+        elif NumberShown.is_odd(i):
             other_count["odd"] += count
 
-        if Number.is_in_1_12(i):
+        if NumberShown.is_in_1_12(i):
             other_count["1_12"] += count
-        elif Number.is_in_13_24(i):
+        elif NumberShown.is_in_13_24(i):
             other_count["13_24"] += count
-        elif Number.is_in_25_36(i):
+        elif NumberShown.is_in_25_36(i):
             other_count["25_36"] += count
 
-        if Number.is_in_1_18(i):
+        if NumberShown.is_in_1_18(i):
             other_count["1_18"] += count
-        elif Number.is_in_19_36(i):
+        elif NumberShown.is_in_19_36(i):
             other_count["19_36"] += count
 
-        if Number.is_in_row_one(i):
+        if NumberShown.is_in_row_one(i):
             other_count["row_one"] += count
-        elif Number.is_in_row_two(i):
+        elif NumberShown.is_in_row_two(i):
             other_count["row_two"] += count
-        elif Number.is_in_row_three(i):
+        elif NumberShown.is_in_row_three(i):
             other_count["row_three"] += count
 
     total = sum(numbers_count.values())
