@@ -38,6 +38,96 @@ def home_request(request):
     context = {}
     current_session = Session.get_current_session(request)
     context['history'] = NumberShown.objects.filter(session=current_session).order_by('-date')
+
+    '''
+        current_session = Session.get_current_session(request)
+    if current_session is None:
+        messages.error(request, "Must be in session to use analytics.")
+        return redirect("roulettecounter:home")
+
+    # { number -> percentage times occurred }
+    # out of a sample size of...
+    context = {}
+
+    # Populate our numbers
+    numbers_numbers = {}
+    numbers_count = {}
+    other_count = {
+        "red": 0,
+        "black": 0,
+        "odd": 0,
+        "even": 0,
+        "1_12": 0,
+        "13_24": 0,
+        "25_36": 0,
+        "row_one": 0,
+        "row_two": 0,
+        "row_three": 0,
+        "1_18": 0,
+        "19_36": 0
+    }
+    for i in range(0, 37):
+        # numbers_numbers[i] = Number.objects.filter(session=get_current_session(request), number=i)
+        count = NumberShown.objects.filter(session=current_session, number=i).count()
+
+        numbers_count[i] = count
+
+        if NumberShown.is_red(i):
+            other_count["red"] += count
+        elif NumberShown.is_black(i):
+            other_count["black"] += count
+
+        if NumberShown.is_even(i):
+            other_count["even"] += count
+        elif NumberShown.is_odd(i):
+            other_count["odd"] += count
+
+        if NumberShown.is_in_1_12(i):
+            other_count["1_12"] += count
+        elif NumberShown.is_in_13_24(i):
+            other_count["13_24"] += count
+        elif NumberShown.is_in_25_36(i):
+            other_count["25_36"] += count
+
+        if NumberShown.is_in_1_18(i):
+            other_count["1_18"] += count
+        elif NumberShown.is_in_19_36(i):
+            other_count["19_36"] += count
+
+        if NumberShown.is_in_row_one(i):
+            other_count["row_one"] += count
+        elif NumberShown.is_in_row_two(i):
+            other_count["row_two"] += count
+        elif NumberShown.is_in_row_three(i):
+            other_count["row_three"] += count
+
+    total = sum(numbers_count.values())
+    numbers_percentages = {}
+    other_percentages = {
+        "red": helper.to_percent(other_count["red"] / total),
+        "black": helper.to_percent(other_count["black"] / total),
+        "odd": helper.to_percent(other_count["odd"] / total),
+        "even": helper.to_percent(other_count["even"] / total),
+        "1_12": helper.to_percent(other_count["1_12"] / total),
+        "13_24": helper.to_percent(other_count["13_24"] / total),
+        "25_36": helper.to_percent(other_count["25_36"] / total),
+        "row_one": helper.to_percent(other_count["row_one"] / total),
+        "row_two": helper.to_percent(other_count["row_two"] / total),
+        "row_three": helper.to_percent(other_count["row_three"] / total),
+        "1_18": helper.to_percent(other_count["1_18"] / total),
+        "19_36": helper.to_percent(other_count["19_36"] / total)
+    }
+
+    for k, v in numbers_count.items():
+        numbers_percentages[k] = helper.to_percent(v / total)
+
+    context["numbers"] = numbers_percentages
+    context["other_percentages"] = other_percentages
+
+    return render(request, "roulettecounter/analytics.html", context=context)
+    '''
+
+
     return render(request, "roulettecounter/home.html")
 
 

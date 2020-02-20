@@ -4,6 +4,8 @@ from django.contrib.auth import get_user
 from django.contrib.auth.models import User
 from django.db import models
 
+from roulettecounter import helper
+
 
 class BoardStat(models.Model):
     num_green = models.PositiveSmallIntegerField(default=0)
@@ -20,11 +22,28 @@ class BoardStat(models.Model):
     num_second_row = models.PositiveSmallIntegerField(default=0)
     num_third_row = models.PositiveSmallIntegerField(default=0)
 
+    total_count = models.PositiveSmallIntegerField(default=0)
+
+    percentage_green = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_red = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_black = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_even = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_odd = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_first_col = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_second_col = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_third_col = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_first_half = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_second_half = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_first_row = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_second_row = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    percentage_third_row = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
     @classmethod
     def create(cls):
         return cls()
 
     def inc_or_dec(self, number_stat, amount):
+
         if number_stat.is_red:
             self.num_red += amount
         elif number_stat.is_black:
@@ -55,6 +74,26 @@ class BoardStat(models.Model):
             self.num_second_row += amount
         elif number_stat.is_in_third_row:
             self.num_third_row += amount
+
+        self.total_count += amount
+
+        self.percentage_green = helper.to_percent(self.num_green / self.total_count)
+        self.percentage_red = helper.to_percent(self.num_red / self.total_count)
+        self.percentage_black = helper.to_percent(self.num_black / self.total_count)
+        self.percentage_even = helper.to_percent(self.num_even / self.total_count)
+        self.percentage_odd = helper.to_percent(self.num_odd / self.total_count)
+        self.percentage_first_col = helper.to_percent(self.num_first_col / self.total_count)
+        self.percentage_second_col = helper.to_percent(self.num_second_col / self.total_count)
+        self.percentage_third_col = helper.to_percent(self.num_third_col / self.total_count)
+        self.percentage_first_half = helper.to_percent(self.num_first_half / self.total_count)
+        self.percentage_second_half = helper.to_percent(self.num_second_half / self.total_count)
+        self.percentage_first_row = helper.to_percent(self.num_first_row / self.total_count)
+        self.percentage_second_row = helper.to_percent(self.num_second_row / self.total_count)
+        self.percentage_third_row = helper.to_percent(self.num_third_row / self.total_count)
+
+        # Update the % this particular number has appeared
+        number_stat.percentage_appeared = helper.to_percent(number_stat.appearances / self.total_count)
+        number_stat.save()
 
         self.save()
 
@@ -136,6 +175,7 @@ class NumberStat(models.Model):
     is_in_second_row = models.BooleanField()
     is_in_third_row = models.BooleanField()
     appearances = models.PositiveSmallIntegerField(default=0)
+    percentage_appeared = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
 
     green_numbers = [0, 00]
@@ -168,15 +208,14 @@ class NumberStat(models.Model):
 
     def inc(self):
         self.appearances += 1
-        self.session.board_stat.inc(self)
-        # Session.objects.get(pk=self.session.primary_key).board_stat.inc()
         self.save()
+        self.session.board_stat.inc(self)
 
     def dec(self):
         if self.appearances != 0:
             self.appearances -= 1
+            self.save()
             self.session.board_stat.dec(self)
-        self.save()
 
 
 class NumberShown(models.Model):
