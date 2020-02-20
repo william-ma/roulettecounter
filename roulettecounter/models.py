@@ -198,7 +198,7 @@ class NumberStat(models.Model):
         number_stat.is_in_third_col = 25 <= number <= 36
 
         number_stat.is_in_first_half = 1 <= number <= 18
-        number_stat.is_in_second_half = not number_stat.is_in_first_half
+        number_stat.is_in_second_half = 19 <= number <= 36
 
         number_stat.is_in_first_row = (number % 3 == 1)
         number_stat.is_in_second_row = (number % 3 == 2)
