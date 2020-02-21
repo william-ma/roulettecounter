@@ -1,4 +1,8 @@
-<div class="col text-center" onclick="document.forms['number{{ number.number }}'].submit();">
+{% if number %}
+    <div class="col text-center" id="div_number{{number.number}}" onclick="document.forms['number{{ number.number }}'].submit();">
+{% else %}
+    <div class="col text-center">
+{% endif %}
     {% if number %}
         <form name="number{{ number.number }}" id="number{{ number.number }}" method="post" action="/number/{{number.number}}">
             {% csrf_token %}
