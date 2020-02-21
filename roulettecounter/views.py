@@ -40,7 +40,7 @@ def home_request(request):
 
     context = {"numbers": NumberStat.objects.filter(session=session),
                "board_stat": BoardStat.objects.get(id=session.board_stat.pk),
-               'history': NumberShown.objects.filter(session=session).order_by('-date')}
+               'history': NumberShown.objects.filter(session=session).order_by('-date')[:20]}
 
     return render(request, "roulettecounter/home.html", context=context)
 

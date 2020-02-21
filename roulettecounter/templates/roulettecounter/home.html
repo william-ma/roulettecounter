@@ -108,9 +108,22 @@
 <br>
 <div class="row justify-content-center">
     <div class="col text-center">
+        <p class="text-secondary"><small>
+            History
+            <br>
+            {% for number in history %}
+            {{ number.number_stat.number }}&nbsp;
+            {% endfor %}
+        </small></p>
+    </div>
+</div>
+<br>
+<div class="row justify-content-center">
+    <div class="col text-center">
         <p class="text-secondary"><small>Out of a sample size of {{ board_stat.total_count }}.</small></p>
     </div>
 </div>
+<br>
 <br>
 <div class="row justify-content-center">
     <div class="col text-center">
