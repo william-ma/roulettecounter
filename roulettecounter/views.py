@@ -72,7 +72,11 @@ def number_request(request, number):
             else:
                 messages.error(request, "Must be in a session to add numbers.")
 
-    return redirect("roulettecounter:home")
+    print(request.META["HTTP_REFERER"])
+    if "mobile" in request.META["HTTP_REFERER"]:
+        return redirect("roulettecounter:mobile")
+    else:
+        return redirect("roulettecounter:home")
 
 
 def delete_most_recent_request(request):

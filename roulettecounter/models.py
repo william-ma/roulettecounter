@@ -111,7 +111,7 @@ Each session has all the numbers attached to it.
 
 
 class Session(models.Model):
-    date_start = models.DateTimeField(default=datetime.datetime.now())
+    date_start = models.DateTimeField()
     date_end = models.DateTimeField(null=True, default=None)
     # TEMPORARY! Allow user to be null to support guests. This is TEMPORARY!
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
@@ -124,7 +124,7 @@ class Session(models.Model):
         board_stat = BoardStat.create()
         board_stat.save()
 
-        session = cls(user=user, board_stat=board_stat)
+        session = cls(user=user, date_start=datetime.datetime.now(), board_stat=board_stat)
         session.save()
 
         for i in range(0, 37):
@@ -227,13 +227,13 @@ class NumberStat(models.Model):
 
 
 class NumberShown(models.Model):
-    date = models.DateTimeField(default=datetime.datetime.now())
+    date = models.DateTimeField()
     number_stat = models.ForeignKey(NumberStat, on_delete=models.CASCADE)
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
 
     @classmethod
     def create(cls, number_stat, session):
-        number_shown = cls(number_stat=number_stat, session=session)
+        number_shown = cls(number_stat=number_stat, date=datetime.datetime.now(), session=session)
         number_shown.save()
 
         number_stat.inc()
