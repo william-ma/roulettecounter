@@ -15,26 +15,20 @@ from . import helper
 from .models import Session, NumberShown, NumberStat, BoardStat
 
 
-# Create your views here.
 def mobile_request(request):
-    context = {}
-    current_session = Session.get_current_session(request)
-
+    # We start a session automatically
     if not Session.is_in_session(request):
-        return render(request=request, template_name="roulettecounter/mobile.html", context=context)
+        start_session_request(request)
 
-    messages.info(request,
-                  f"In session started on {current_session.date_start.strftime('%a %I:%M%p (%d/%m)')}")
+    session = Session.get_current_session(request)
+    context = {'currentSession': session,
+               # Labels and Data are the lists used by ChartJS for visualization
+               'labels': get_hot_numbers(request, session, limit=10)[0],
+               'data': get_hot_numbers(request, session, limit=10)[1],
+               'history': NumberShown.objects.filter(session=session).order_by('-date')
+               }
 
-    # Populate context
-    context['currentSession'] = current_session
-
-    # Required for visualization
-    context['labels'], context['data'] = get_hot_numbers(request, current_session, limit=10)
-
-    context['history'] = NumberShown.objects.filter(session=current_session).order_by('-date')
-
-    return render(request=request, template_name="roulettecounter/mobile.html", context=context)
+    return render(request, "roulettecounter/mobile.html", context=context)
 
 
 def home_request(request):
@@ -137,16 +131,16 @@ def signup(request):
 #     return render(request=request, template_name="roulettecounter/visualize.html", context=context)
 
 def get_hot_numbers(request, session, limit=37):
-    hotNumbers = []
-    for i in range(0, 37):
-        count = NumberShown.objects.filter(session=session, number=i).count()
-        if count != 0:
-            hotNumbers.append((i, count))
 
-    hotNumbers.sort(key=itemgetter(1), reverse=True)
+    hot_numbers = []
+    for number_stat in NumberStat.objects.filter(session=session):
+        if number_stat.appearances > 0:
+            hot_numbers.append((number_stat.number, number_stat.appearances))
 
-    labels = [e[0] for e in hotNumbers][:limit]
-    data = [e[1] for e in hotNumbers][:limit]
+    hot_numbers.sort(key=itemgetter(1), reverse=True)
+
+    labels = [e[0] for e in hot_numbers][:limit]
+    data = [e[1] for e in hot_numbers][:limit]
 
     return labels, data
 
@@ -321,6 +315,7 @@ def analytics_request(request):
     context["other_percentages"] = other_percentages
 
     return render(request, "roulettecounter/analytics.html", context=context)
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
