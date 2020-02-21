@@ -69,15 +69,15 @@ def history_request(request):
 
 
 def number_request(request, number):
-    if request.method == "POST":
-        if number < 0 or number > 36:
-            messages.error(request, "Number must be between 0 and 36.")
-
-        if Session.is_in_session(request):
-            number = create_number(Session.get_current_session(request), number)
-            messages.info(request, f"'{number}' was added.")
-        else:
-            messages.error(request, "Must be in a session to add numbers.")
+    # if request.method == "POST":
+    #     if number < 0 or number > 36:
+    #         messages.error(request, "Number must be between 0 and 36.")
+    #
+    #     if Session.is_in_session(request):
+    #         number = NumberShown.crea create_number(Session.get_current_session(request), number)
+    #         messages.info(request, f"'{number}' was added.")
+    #     else:
+    #         messages.error(request, "Must be in a session to add numbers.")
 
     return redirect("roulettecounter:home")
 
@@ -203,8 +203,9 @@ def delete_most_recent_number(request):
 
 
 def start_session_request(request):
+    # Because we can start a new session, before the old one has finished, end the old one before starting the new one
     if Session.is_in_session(request):
-        return JsonResponse({"error_message": "Session cannot be started, you are already in a session."})
+        Session.get_current_session(request).end()
 
     user = get_user(request)
     if user.is_anonymous:
@@ -213,25 +214,16 @@ def start_session_request(request):
     session = Session.create(user)
     session.save()
 
-    return JsonResponse(serializers.serialize("json", [session]), safe=False)
+    return redirect("roulettecounter:home")
 
 
 def end_session_request(request):
     if not Session.is_in_session(request):
         return JsonResponse({"error_message": "Session cannot be ended, you are currently not in a session."})
 
-    session = Session.get_current_session(request)
-    if session:
-        session.date_end = datetime.datetime.now()
-        session.save()
+    Session.get_current_session(request).end()
 
-    return JsonResponse(serializers.serialize("json", [session]), safe=False)
-
-
-def create_number(currentSession, number):
-    numberObj = NumberShown(number=number, date=datetime.datetime.now(), session=currentSession)
-    numberObj.save()
-    return numberObj.number
+    return redirect("roulettecounter:home")
 
 
 def delete_last_number(current_session):

@@ -134,6 +134,10 @@ class Session(models.Model):
     def is_running(self):
         return self.date_end is None
 
+    def end(self):
+        self.date_end = datetime.datetime.now()
+        self.save()
+
     '''
     Returns the current session, otherwise returns None if we're currently not in a session
     '''
