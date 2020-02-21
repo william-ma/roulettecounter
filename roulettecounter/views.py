@@ -4,10 +4,13 @@ from operator import itemgetter
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate, get_user
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User
 from django.core import serializers
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from rest_framework import viewsets
 
+from roulettecounter.serializers import UserSerializer
 from . import helper
 from .models import Session, NumberShown, NumberStat, BoardStat
 
@@ -327,3 +330,8 @@ def analytics_request(request):
     context["other_percentages"] = other_percentages
 
     return render(request, "roulettecounter/analytics.html", context=context)
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+

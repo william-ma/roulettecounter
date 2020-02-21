@@ -14,9 +14,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, include
+from rest_framework import routers
+
 from . import views
 
 app_name = "roulettecounter"
+
+router = routers.DefaultRouter()
+router.register('api/users', views.UserViewSet)
 
 urlpatterns = [
     path('', views.home_request, name="home"),
@@ -31,5 +36,6 @@ urlpatterns = [
     path('history', views.history_request, name="history"),
     path('analytics', views.analytics_request, name="analytics"),
     path('mobile', views.mobile_request, name="mobile"),
+    path('', include(router.urls))
     #path('contact/', include('contact_form.urls')),
 ]
