@@ -69,15 +69,14 @@ def history_request(request):
 
 
 def number_request(request, number):
-    # if request.method == "POST":
-    #     if number < 0 or number > 36:
-    #         messages.error(request, "Number must be between 0 and 36.")
-    #
-    #     if Session.is_in_session(request):
-    #         number = NumberShown.crea create_number(Session.get_current_session(request), number)
-    #         messages.info(request, f"'{number}' was added.")
-    #     else:
-    #         messages.error(request, "Must be in a session to add numbers.")
+    if request.method == "POST":
+        if 0 <= number <= 36:
+            if Session.is_in_session(request):
+                session = Session.get_current_session(request)
+                number_stat = NumberStat.objects.get(session=session, number=number)
+                NumberShown.create(number_stat, session)
+            else:
+                messages.error(request, "Must be in a session to add numbers.")
 
     return redirect("roulettecounter:home")
 

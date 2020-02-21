@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'gunicorn',
     'rest_framework',
     'rest_auth',
-    'rest_auth.registration'
+    'rest_auth.registration',
+    'jquery'
     #'contact_form'
 ]
 

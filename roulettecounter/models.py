@@ -91,9 +91,10 @@ class BoardStat(models.Model):
         self.percentage_second_row = helper.to_percent(self.num_second_row / self.total_count)
         self.percentage_third_row = helper.to_percent(self.num_third_row / self.total_count)
 
-        # Update the % this particular number has appeared
-        number_stat.percentage_appeared = helper.to_percent(number_stat.appearances / self.total_count)
-        number_stat.save()
+        # Update the % for all the number_stats, since total has changed.
+        for number_stat in NumberStat.objects.filter(session=number_stat.session):
+            number_stat.percentage_appeared = helper.to_percent(number_stat.appearances / self.total_count)
+            number_stat.save()
 
         self.save()
 
@@ -220,6 +221,9 @@ class NumberStat(models.Model):
             self.appearances -= 1
             self.save()
             self.session.board_stat.dec(self)
+
+    def __str__(self):
+        return "Session {} - {}".format(self.session.pk, self.number)
 
 
 class NumberShown(models.Model):

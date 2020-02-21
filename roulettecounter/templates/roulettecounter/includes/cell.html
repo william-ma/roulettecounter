@@ -1,13 +1,15 @@
-<div class="col text-center">
-
+<div class="col text-center" onclick="document.forms['number{{ number.number }}'].submit();">
     {% if number %}
-        {% if number.is_red %}
-            <h5 class="text-danger">{{ number.number }}</h5>
-        {% elif number.is_black %}
-            <h5 class="text-dark">{{ number.number }}</h5>
-        {% elif number.is_green %}
-            <h5 class="text-success">{{ number.number }}</h5>
-        {% endif %}
+        <form name="number{{ number.number }}" id="number{{ number.number }}" method="post" action="/number/{{number.number}}">
+            {% csrf_token %}
+            {% if number.is_red %}
+                <h5 class="text-danger">{{ number.number }}</h5>
+            {% elif number.is_black %}
+                <h5 class="text-dark">{{ number.number }}</h5>
+            {% elif number.is_green %}
+                <h5 class="text-success">{{ number.number }}</h5>
+            {% endif %}
+        </form>
     {% else %}
         {% if v %}
             {% if v == "Red" %}
@@ -17,23 +19,17 @@
             {% endif %}
         {% endif %}
     {% endif %}
-
-    {% comment %}
-<!--        {% if number.percentage_appeared < 0.1 %}-->
-<!--            <p class="text-muted"><small>({{ number.percentage_appeared }}%)</small></p>-->
-<!--        {% else %}-->
-<!--            <p class="text-dark"><small>({{ number.percentage_appeared }}%)</small></p>-->
-<!--        {% endif %}-->
-<!--    {% else %}-->
-<!--        <h6 class="text-secondary">{{ k }}</h6>-->
-<!--        {% if v < 0.1 %}-->
-<!--            <p class="text-muted">-->
-<!--        {% else %}-->
-<!--            <p class="text-dark">-->
-<!--        {% endif %}-->
-<!--        <small>({{ v }}%)</small>-->
-<!--        </p>-->
-<!--    {% endif %}-->
-    {% endcomment %}
-
 </div>
+{% comment %}
+<!--{% if number %}-->
+<!--<script>-->
+<!--    $(#{{number.number}}).click(function() {-->
+<!--        $.post("/number", {{number.number}}, function(data) {-->
+<!--            alert("returned");-->
+<!--        });-->
+<!--    });-->
+
+
+<!--</script>-->
+<!--{% endif %}-->
+{% endcomment %}
