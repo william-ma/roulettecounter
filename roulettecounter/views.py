@@ -38,7 +38,7 @@ def home_request(request):
 
     session = Session.get_current_session(request)
 
-    context = {"numbers": NumberStat.objects.filter(session=session),
+    context = {"numbers": NumberStat.objects.filter(session=session).order_by('number'),
                "board_stat": BoardStat.objects.get(id=session.board_stat.pk),
                'history': NumberShown.objects.filter(session=session).order_by('-date')[:20]}
 
