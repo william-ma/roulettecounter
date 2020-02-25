@@ -111,9 +111,13 @@
         <p class="text-secondary"><small>
             History
             <br>
-            {% for number in history %}
-            {{ number.number_stat.number }}&nbsp;
-            {% endfor %}
+            {% if history %}
+                {% for number in history %}
+                {{ number.number_stat.number }}&nbsp;
+                {% endfor %}
+            {% else %}
+                -
+            {% endif %}
         </small></p>
     </div>
 </div>
