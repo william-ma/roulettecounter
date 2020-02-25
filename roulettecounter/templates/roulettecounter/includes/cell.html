@@ -1,0 +1,39 @@
+{% if number %}
+    <div class="col text-center" id="div_number{{number.number}}" onclick="document.forms['number{{ number.number }}'].submit();">
+{% else %}
+    <div class="col text-center">
+{% endif %}
+    {% if number %}
+        <form name="number{{ number.number }}" id="number{{ number.number }}" method="post" action="/number/{{number.number}}">
+            {% csrf_token %}
+            {% if number.is_red %}
+                <h5 class="text-danger">{{ number.number }}</h5>
+            {% elif number.is_black %}
+                <h5 class="text-dark">{{ number.number }}</h5>
+            {% elif number.is_green %}
+                <h5 class="text-success">{{ number.number }}</h5>
+            {% endif %}
+        </form>
+    {% else %}
+        {% if v %}
+            {% if v == "Red" %}
+                <h6 class="text-danger">{{ v }}</h6>
+            {% else %}
+                <h6 class="text-secondary">{{ v }}</h6>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</div>
+{% comment %}
+<!--{% if number %}-->
+<!--<script>-->
+<!--    $(#{{number.number}}).click(function() {-->
+<!--        $.post("/number", {{number.number}}, function(data) {-->
+<!--            alert("returned");-->
+<!--        });-->
+<!--    });-->
+
+
+<!--</script>-->
+<!--{% endif %}-->
+{% endcomment %}

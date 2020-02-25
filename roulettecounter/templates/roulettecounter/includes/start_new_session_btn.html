@@ -1,0 +1,29 @@
+<!--        New Session Modal -->
+<button class="btn btn-light" data-target="#new_session_model" data-toggle="modal" type="button">
+    Start New Session
+</button>
+
+<!-- Modal -->
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="new_session_model" role="dialog"
+     tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Start New Session?</h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure? This will erase all the data in the current session.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" type="button">No</button>
+                <form>
+                    {% csrf_token %}
+                    <button class="btn btn-primary" formaction="/start_session" type="submit">Yes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

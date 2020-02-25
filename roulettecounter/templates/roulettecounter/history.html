@@ -10,6 +10,7 @@
     <div class="d-flex justify-content-center">{{session.0.date_start}} - {{session.0.date_end}}</div>
     <br>
     {% include "roulettecounter/includes/hotnumbers.html" with chartName=session.0.date_end data=session.2 labels=session.1 %}
+    <br>
   {% endif %}
 {% endfor %}
 

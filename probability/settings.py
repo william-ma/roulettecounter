@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'roulettecounter.apps.RoulettecounterConfig',
     'gunicorn',
+    'rest_framework',
+    'rest_auth',
+    'rest_auth.registration',
+    'jquery'
     #'contact_form'
 ]
 

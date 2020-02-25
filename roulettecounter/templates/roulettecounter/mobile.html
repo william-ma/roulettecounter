@@ -1,0 +1,22 @@
+{% extends "roulettecounter/base.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+
+  {% if currentSession %}
+    {% include "roulettecounter/includes/hotnumbers.html" with chartName="myChart" %}
+    <br>
+    {% include "roulettecounter/includes/input.html" %}
+    <br>
+    {% include "roulettecounter/includes/history.html" %}
+    <br>
+    {% include "roulettecounter/includes/deletebutton.html" %}
+  {% endif %}
+
+  <br>
+
+  {% include "roulettecounter/includes/sessions.html" %}
+
+{% endblock %}

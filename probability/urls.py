@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('', include('roulettecounter.urls')),
     path('admin/', admin.site.urls)
+
 ]
