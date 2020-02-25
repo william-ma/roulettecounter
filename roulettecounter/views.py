@@ -226,7 +226,8 @@ def end_session_request(request):
 def delete_last_number(current_session):
     try:
         numberObj = NumberShown.objects.filter(session=current_session).latest('date')
-        number = numberObj.number
+        number = numberObj.number_stat.number
+        numberObj.number_stat.dec()
         numberObj.delete()
         return number
     except NumberShown.DoesNotExist:

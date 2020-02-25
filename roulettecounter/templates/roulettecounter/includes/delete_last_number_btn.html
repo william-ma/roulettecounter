@@ -1,27 +1,27 @@
 <!--        New Session Modal -->
-<button class="btn btn-light" data-target="#new_session_model" data-toggle="modal" type="button">
-    Start New Session
+<button class="btn btn-light" data-target="#delete_last_number" data-toggle="modal" type="button">
+    Delete Last Number
 </button>
 
 <!-- Modal -->
-<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="new_session_model" role="dialog"
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="delete_last_number" role="dialog"
      tabindex="-1">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Start New Session?</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Delete Last Number?</h5>
                 <button aria-label="Close" class="close" data-dismiss="modal" type="button">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                Are you sure? This will erase all the data in the current session.
+                Are you sure? This will erase data.
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-dismiss="modal" type="button">No</button>
-                <form method="post">
+                <form method="post" action="/delete_most_recent">
                     {% csrf_token %}
-                    <button class="btn btn-danger" formaction="/start_session" type="submit">Yes</button>
+                    <button class="btn btn-danger" type="submit">Yes</button>
                 </form>
             </div>
         </div>

@@ -24,6 +24,7 @@ class BoardStat(models.Model):
 
     total_count = models.PositiveSmallIntegerField(default=0)
 
+    # These should've been dictionaries
     percentage_green = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     percentage_red = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     percentage_black = models.DecimalField(max_digits=5, decimal_places=2, default=0)
@@ -77,24 +78,44 @@ class BoardStat(models.Model):
 
         self.total_count += amount
 
-        self.percentage_green = helper.to_percent(self.num_green / self.total_count)
-        self.percentage_red = helper.to_percent(self.num_red / self.total_count)
-        self.percentage_black = helper.to_percent(self.num_black / self.total_count)
-        self.percentage_even = helper.to_percent(self.num_even / self.total_count)
-        self.percentage_odd = helper.to_percent(self.num_odd / self.total_count)
-        self.percentage_first_col = helper.to_percent(self.num_first_col / self.total_count)
-        self.percentage_second_col = helper.to_percent(self.num_second_col / self.total_count)
-        self.percentage_third_col = helper.to_percent(self.num_third_col / self.total_count)
-        self.percentage_first_half = helper.to_percent(self.num_first_half / self.total_count)
-        self.percentage_second_half = helper.to_percent(self.num_second_half / self.total_count)
-        self.percentage_first_row = helper.to_percent(self.num_first_row / self.total_count)
-        self.percentage_second_row = helper.to_percent(self.num_second_row / self.total_count)
-        self.percentage_third_row = helper.to_percent(self.num_third_row / self.total_count)
+        if self.total_count > 0:
+            self.percentage_green = helper.to_percent(self.num_green / self.total_count)
+            self.percentage_red = helper.to_percent(self.num_red / self.total_count)
+            self.percentage_black = helper.to_percent(self.num_black / self.total_count)
+            self.percentage_even = helper.to_percent(self.num_even / self.total_count)
+            self.percentage_odd = helper.to_percent(self.num_odd / self.total_count)
+            self.percentage_first_col = helper.to_percent(self.num_first_col / self.total_count)
+            self.percentage_second_col = helper.to_percent(self.num_second_col / self.total_count)
+            self.percentage_third_col = helper.to_percent(self.num_third_col / self.total_count)
+            self.percentage_first_half = helper.to_percent(self.num_first_half / self.total_count)
+            self.percentage_second_half = helper.to_percent(self.num_second_half / self.total_count)
+            self.percentage_first_row = helper.to_percent(self.num_first_row / self.total_count)
+            self.percentage_second_row = helper.to_percent(self.num_second_row / self.total_count)
+            self.percentage_third_row = helper.to_percent(self.num_third_row / self.total_count)
 
-        # Update the % for all the number_stats, since total has changed.
-        for number_stat in NumberStat.objects.filter(session=number_stat.session):
-            number_stat.percentage_appeared = helper.to_percent(number_stat.appearances / self.total_count)
-            number_stat.save()
+            # Update the % for all the number_stats, since total has changed.
+            for number_stat in NumberStat.objects.filter(session=number_stat.session):
+                number_stat.percentage_appeared = helper.to_percent(number_stat.appearances / self.total_count)
+                number_stat.save()
+        else:
+            self.percentage_green = 0
+            self.percentage_red = 0
+            self.percentage_black = 0
+            self.percentage_even = 0
+            self.percentage_odd = 0
+            self.percentage_first_col = 0
+            self.percentage_second_col = 0
+            self.percentage_third_col = 0
+            self.percentage_first_half = 0
+            self.percentage_second_half = 0
+            self.percentage_first_row = 0
+            self.percentage_second_row = 0
+            self.percentage_third_row = 0
+
+            # Update the % for all the number_stats, since total has changed.
+            for number_stat in NumberStat.objects.filter(session=number_stat.session):
+                number_stat.percentage_appeared = 0
+                number_stat.save()
 
         self.save()
 
