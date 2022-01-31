@@ -6,7 +6,6 @@ from django.db import models
 
 from roulettecounter import helper
 
-
 class BoardStat(models.Model):
     num_green = models.PositiveSmallIntegerField(default=0)
     num_red = models.PositiveSmallIntegerField(default=0)

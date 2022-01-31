@@ -1,4 +1,9 @@
-# Roulette Counter
+# Roulette Lite
+
+A web app developed using the Django framework. 
+Represents the roulette table at most casinos, 
+however instead of showing the last 20 spins, 
+all the spins are recorded. 
 
 ## Features
 
@@ -8,11 +13,4 @@
 - [x] Supports multiple users
 - [x] Review previous sessions
 - [x] Displays history of previous numbers
-- [x] Detailed analytics 
-
-## TODO
-
-- [ ] Handle multiple guests
-
-- [ ] Make more responsive (javascript)
-- [ ] Refactor into clicks and numbers, where numbers holds the analytical information + count
+- [x] Detailed analytics
